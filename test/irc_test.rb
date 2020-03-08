@@ -15,11 +15,11 @@ describe Hellbender::IRC do
   end
 
   it "parses server messages" do
-    assert_equal [":Nick!user@ser.ver", "PRIVMSG", ["#channel", "hello, world!"]],
+    assert_equal ["Nick!user@ser.ver", "PRIVMSG", ["#channel", "hello, world!"]],
                   @irc.parse_msg(":Nick!user@ser.ver PRIVMSG #channel :hello, world!")
     assert_equal [nil, "PRIVMSG", ["bar", "hello"]], @irc.parse_msg("PRIVMSG bar :hello")
     assert_equal [nil, "CMD", ["x", ""]], @irc.parse_msg("CMD x :")
-    assert_equal [":ser.ver", "CMD", ["x", ""]], @irc.parse_msg(":ser.ver CMD x :")
+    assert_equal ["ser.ver", "CMD", ["x", ""]], @irc.parse_msg(":ser.ver CMD x :")
     assert_equal [nil, "PING", ["123 45"]], @irc.parse_msg("PING :123 45")
   end
 
@@ -38,7 +38,7 @@ describe Hellbender::IRC do
   it "processes server messages" do
     q = Queue.new
     @irc.add_listener(q)
-    message = [":ser.ver", "PRIVMSG", ["you", "hello"]]
+    message = ["ser.ver", "PRIVMSG", ["you", "hello"]]
 
     @irc.process_msg(*message, "should not see this")
     assert_equal 1, q.size

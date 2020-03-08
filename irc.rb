@@ -52,7 +52,7 @@ module Hellbender
 
       when "NICK"
         # track our own nick, in case the server changes it
-        if irccase(prefix).start_with?(irccase(":#{@nick}!"))
+        if irccase(prefix).start_with?(irccase("#{@nick}!"))
           @nick = params.first
         end
 
@@ -70,7 +70,7 @@ module Hellbender
 
     # parse messages received from the server
     def parse_msg(line)
-      if line =~ /\A((:[^ ]+) )?([^ ]+)/
+      if line =~ /\A(:([^ ]+) )?([^ ]+)/
         prefix = $2
         command = $3
         rest = $'
