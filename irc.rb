@@ -7,7 +7,7 @@ require_relative "loggerformatter"
 
 module Hellbender
   class IRC
-    attr_reader :config, :log
+    attr_reader :config, :log, :nick
     def initialize(config = {})
       @config = config
       @sock = nil
@@ -23,7 +23,8 @@ module Hellbender
       @sock = TCPSocket.new(sc["host"], sc["port"], sc["bindhost"])
       pass = sc["pass"]
       sendraw "PASS #{pass}" if pass
-      sendraw "NICK #{sc['nick']}"
+      @nick = sc['nick']
+      sendraw "NICK #{@nick}"
       sendraw "USER #{sc['username']} #{sc['bindhost'] || 'localhost'} #{sc['host']} :#{sc['realname']}"
     end
 
@@ -43,16 +44,26 @@ module Hellbender
         log.debug "<<#{rawline.chomp}" if rawline
       end
 
-      if command == "PING"
+      case command
+      when "PING"
         sendraw "PONG #{params.first}"
-      else
-        @listener_mutex.synchronize do
-          @listeners.each do |queue|
-            # ignore listeners that have too much backlog
-            next if queue.size >= 5
-            # send copies of the data
-            queue << [prefix.dup, command.dup, params.map(&:dup)]
-          end
+        # no need to bother listeners with this
+        return
+
+      when "NICK"
+        # track our own nick, in case the server changes it
+        if irccase(prefix).start_with?(irccase(":#{@nick}!"))
+          @nick = params.first
+        end
+
+      end
+
+      @listener_mutex.synchronize do
+        @listeners.each do |queue|
+          # ignore listeners that have too much backlog
+          next if queue.size >= 5
+          # send copies of the data
+          queue << [prefix.dup, command.dup, params.map(&:dup)]
         end
       end
     end
@@ -85,6 +96,11 @@ module Hellbender
       @listener_mutex.synchronize do
         @listeners << queue
       end
+    end
+
+    # convert nicks to downcase with IRC rules
+    def irccase(nick)
+      nick.downcase.tr("[]\\", "{}|")
     end
 
     private

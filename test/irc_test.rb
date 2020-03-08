@@ -59,4 +59,13 @@ describe Hellbender::IRC do
     assert_equal 0, q.size
   end
 
+  it "can convert IRC nicks to lower case" do
+    assert_equal "{foobar}", @irc.irccase("[fooBAR}")
+  end
+
+  it "tracks its own nickname" do
+    @irc.instance_variable_set :@nick, "Bot1"
+    @irc.process_msg(*@irc.parse_msg(":bot1!~hellbende@example.net NICK :Bot2"))
+    assert_equal "Bot2", @irc.nick
+  end
 end
