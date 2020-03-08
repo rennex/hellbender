@@ -1,0 +1,9 @@
+server:
+  host: localhost
+  port: 4444
+  username: znc-user
+  pass: znc-password
+  nick: bot
+  realname: Braindead bot
+  ## specify bindhost to connect from a specified network interface
+  # bindhost: my-cool-domain.example.org
