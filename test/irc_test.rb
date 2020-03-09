@@ -23,18 +23,6 @@ describe Hellbender::IRC do
     assert_equal [nil, "PING", ["123 45"]], @irc.parse_msg("PING :123 45")
   end
 
-  it "guesses message encodings and converts to UTF-8" do
-    # emulate raw messages received from a TCP socket
-    raw1 = "föö bär".encode("UTF-8").force_encoding("ASCII-8BIT")
-    raw2 = "föö bär".encode("ISO-8859-1").force_encoding("ASCII-8BIT")
-    refute_equal raw1, raw2
-    [raw1, raw2].each do |raw|
-      @irc.guess_encoding(raw)
-      assert_equal "föö bär", raw
-      assert_equal "UTF-8", raw.encoding.to_s
-    end
-  end
-
   it "processes server messages" do
     q = Queue.new
     @irc.add_listener(q)
@@ -73,10 +61,6 @@ describe Hellbender::IRC do
     @irc.instance_variable_set :@sock, mock
     @irc.__send__(:sendraw, "CMD :foo\nOTHERCMD :bar\n")
     assert_mock mock
-  end
-
-  it "can convert IRC nicks to lower case" do
-    assert_equal "{foobar}", @irc.irccase("[fooBAR}")
   end
 
   it "tracks its own nickname" do

@@ -4,9 +4,12 @@ require "yaml"
 require "logger"
 
 require_relative "loggerformatter"
+require_relative "util"
 
 module Hellbender
   class IRC
+    include UtilMethods
+
     attr_reader :config, :log, :nick
     def initialize(config = {})
       @config = config
@@ -33,7 +36,8 @@ module Hellbender
       until @sock.eof?
         line = @sock.gets || break
         guess_encoding(line)
-        process_msg(*parse_msg(line), line)
+        parsed = parse_msg(line)
+        process_msg(*parsed, line) if parsed
       end
     end
 
@@ -83,24 +87,11 @@ module Hellbender
       end
     end
 
-    # handle UTF-8 and latin-1 encodings
-    def guess_encoding(str)
-      str.force_encoding("UTF-8")
-      unless str.valid_encoding?
-        str.encode!("UTF-8", "ISO-8859-1")
-      end
-    end
-
     # add a listener of server messages
     def add_listener(queue)
       @listener_mutex.synchronize do
         @listeners << queue
       end
-    end
-
-    # convert nicks to downcase with IRC rules
-    def irccase(nick)
-      nick.downcase.tr("[]\\", "{}|")
     end
 
     private
