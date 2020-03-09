@@ -67,6 +67,14 @@ describe Hellbender::IRC do
     assert_equal 5, q.size
   end
 
+  it "sends only the first line of raw commands" do
+    mock = Minitest::Mock.new
+    mock.expect(:write, nil, ["CMD :foo\r\n"])
+    @irc.instance_variable_set :@sock, mock
+    @irc.__send__(:sendraw, "CMD :foo\nOTHERCMD :bar\n")
+    assert_mock mock
+  end
+
   it "can convert IRC nicks to lower case" do
     assert_equal "{foobar}", @irc.irccase("[fooBAR}")
   end
