@@ -31,10 +31,13 @@ module Hellbender
       sendraw "NICK #{@nick}"
       sendraw "USER #{config['username']} #{config['bindhost'] || 'localhost'} " +
               "#{config['host']} :#{config['realname']}"
+    rescue Errno::ECONNREFUSED
+      log.error "Connection refused"
+      return false
     end
 
     def run
-      connect
+      connect or return
       until @sock.eof?
         line = @sock.gets || break
         guess_encoding(line)
