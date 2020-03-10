@@ -60,14 +60,14 @@ module Hellbender
 
     # handle an incoming server message
     def process_msg(prefix, command, params, rawline = nil)
-      # log messages, except the MOTD (it's annoying during development)
-      unless ["375", "372", "376"].include? command
+      # log messages, except the MOTD and PINGs
+      unless ["375", "372", "376", "PING"].include? command
         log.debug "<<#{rawline.chomp}" if rawline
       end
 
       case command
       when "PING"
-        sendraw "PONG #{params.first}"
+        sendraw "PONG #{params.first}", no_log: true
         # no need to bother listeners with this
         return
 
@@ -111,10 +111,10 @@ module Hellbender
     end
 
     # send a raw command to the server (only the first line of text)
-    def sendraw(msg)
+    def sendraw(msg, no_log: false)
       if msg =~ /\A([^\r\n]+)/
         line = $1
-        log.debug ">>#{line.inspect}"
+        log.debug ">>#{line.inspect}" unless no_log
         # thread-safe sending!
         @sock_mutex.synchronize do
           @sock.write "#{line}\r\n"
