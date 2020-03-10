@@ -86,7 +86,7 @@ module Hellbender
       if line =~ /\A(:([^ ]+) )?([^ ]+)/
         prefix = $2
         command = $3
-        rest = $'
+        rest = $'.chomp
         params = if rest =~ / :/
           $`.split << $'
         else
