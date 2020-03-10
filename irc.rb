@@ -10,9 +10,10 @@ module Hellbender
   class IRC
     include UtilMethods
 
-    attr_reader :config, :log, :nick
+    attr_reader :config, :log, :nick, :connected
     def initialize(config = {})
       @config = config
+      @connected = false
       @sock = nil
       @sock_mutex = Mutex.new
       @listeners = []
@@ -22,13 +23,14 @@ module Hellbender
     end
 
     def connect
-      sc = config["server"]
-      @sock = TCPSocket.new(sc["host"], sc["port"], sc["bindhost"])
-      pass = sc["pass"]
+      log.info "Connecting to server #{config["host"]}:#{config["port"]}"
+      @sock = TCPSocket.new(config["host"], config["port"], config["bindhost"])
+      pass = config["pass"]
       sendraw "PASS #{pass}" if pass
-      @nick = sc['nick']
+      @nick = config['nick']
       sendraw "NICK #{@nick}"
-      sendraw "USER #{sc['username']} #{sc['bindhost'] || 'localhost'} #{sc['host']} :#{sc['realname']}"
+      sendraw "USER #{config['username']} #{config['bindhost'] || 'localhost'} " +
+              "#{config['host']} :#{config['realname']}"
     end
 
     def run
@@ -37,8 +39,16 @@ module Hellbender
         line = @sock.gets || break
         guess_encoding(line)
         parsed = parse_msg(line)
-        process_msg(*parsed, line) if parsed
+        if parsed
+          if !@connected
+            log.info "Connection to server established"
+            @connected = true
+          end
+          process_msg(*parsed, line)
+        end
       end
+      log.warn "Lost connection to server"
+      @connected = false
     end
 
     # handle an incoming server message
@@ -58,6 +68,7 @@ module Hellbender
         # track our own nick, in case the server changes it
         if irccase(prefix).start_with?(irccase("#{@nick}!"))
           @nick = params.first
+          log.info "Our nickname changed to #{@nick}"
         end
 
       end
@@ -112,7 +123,7 @@ end
 
 if $0 == __FILE__
   config = YAML.load(File.open("config.yml"))
-  irc = Hellbender::IRC.new(config)
+  irc = Hellbender::IRC.new(config["server"])
   irc.run
 end
 

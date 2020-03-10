@@ -10,7 +10,7 @@ module Hellbender
       end
     end
 
-    # convert nicks to downcase with IRC rules
+    # convert nicks to lowercase with IRC rules
     def irccase(nick)
       nick.downcase.tr("[]\\", "{}|")
     end
