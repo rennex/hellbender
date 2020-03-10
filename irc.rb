@@ -29,12 +29,16 @@ module Hellbender
     def connect
       log.info "Connecting to server #{config["host"]}:#{config["port"]}"
       @sock = TCPSocket.new(config["host"], config["port"], config["bindhost"])
+      log.info "Connection established"
+      @connected = true
+
       pass = config["pass"]
       sendraw "PASS #{pass}" if pass
       @nick = config['nick']
       sendraw "NICK #{@nick}"
       sendraw "USER #{config['username']} #{config['bindhost'] || 'localhost'} " +
               "#{config['host']} :#{config['realname']}"
+
     rescue Errno::ECONNREFUSED
       log.error "Connection refused"
       return false
@@ -46,13 +50,7 @@ module Hellbender
         line = @sock.gets || break
         guess_encoding(line)
         parsed = parse_msg(line)
-        if parsed
-          if !@connected
-            log.info "Connection to server established"
-            @connected = true
-          end
-          process_msg(*parsed, line)
-        end
+        process_msg(*parsed, line) if parsed
       end
       log.warn "Lost connection to server"
       @connected = false
