@@ -51,7 +51,7 @@ describe Hellbender::IRC do
     mock = Minitest::Mock.new
     mock.expect(:write, nil, ["CMD :foo\r\n"])
     @irc.instance_variable_set :@sock, mock
-    @irc.__send__(:sendraw, "CMD :foo\nOTHERCMD :bar\n")
+    @irc.sendraw "CMD :foo\nOTHERCMD :bar\n"
     assert_mock mock
   end
 

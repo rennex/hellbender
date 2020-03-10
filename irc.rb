@@ -106,7 +106,6 @@ module Hellbender
       end
     end
 
-    private
     # send a raw command to the server (only the first line of text)
     def sendraw(msg)
       if msg =~ /\A([^\r\n]+)/
