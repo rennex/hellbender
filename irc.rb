@@ -15,11 +15,15 @@ module Hellbender
       @config = config
       @connected = false
       @sock = nil
-      @sock_mutex = Mutex.new
+      @sock_mutex = Mutex.new   # for writing to the socket
       @listeners = []
-      @listener_mutex = Mutex.new
+      @mutex = Mutex.new        # for general thread-safety
       @log = Logger.new(STDOUT)
       @log.formatter = LoggerFormatter.new
+    end
+
+    def sync
+      @mutex.synchronize { yield }
     end
 
     def connect
@@ -76,7 +80,7 @@ module Hellbender
 
       end
 
-      @listener_mutex.synchronize do
+      sync do
         @listeners.each do |queue|
           # send copies of the data
           queue << [prefix.dup, command.dup, params.map(&:dup)]
@@ -101,7 +105,7 @@ module Hellbender
 
     # add a listener of server messages
     def add_listener(queue)
-      @listener_mutex.synchronize do
+      sync do
         @listeners << queue
       end
     end

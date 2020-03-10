@@ -60,4 +60,13 @@ describe Hellbender::IRC do
     @irc.process_msg(*@irc.parse_msg(":bot1!~hellbende@example.net NICK :Bot2"))
     assert_equal "Bot2", @irc.nick
   end
+
+  it "has a working sync()" do
+    mutex = @irc.instance_variable_get :@mutex
+    refute mutex.locked?
+    @irc.sync do
+      assert mutex.owned?
+    end
+  end
+
 end
