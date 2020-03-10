@@ -9,6 +9,11 @@ describe Util do
     assert_equal "{foo|bar}", Util.irccase('[foo\BAR]')
   end
 
+  it "can compare IRC nicks case-insensitively" do
+    assert Util.nickcmp('FOO[\]', "foo{|}")
+    refute Util.nickcmp(nil, "bar")
+  end
+
   it "guesses message encodings and converts them to UTF-8" do
     # emulate raw messages received from a TCP socket
     raw1 = "föö bär".encode("UTF-8").force_encoding("ASCII-8BIT")

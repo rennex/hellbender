@@ -15,6 +15,13 @@ module Hellbender
       nick.downcase.tr("[]\\", "{}|")
     end
 
+    # compare nicks case-insensitively
+    def nickcmp(nick1, nick2)
+      if nick1 && nick2
+        irccase(nick1) == irccase(nick2)
+      end
+    end
+
   end
 
   class Util
