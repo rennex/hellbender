@@ -92,7 +92,7 @@ module Hellbender
     def parse_msg(line)
       if line =~ /\A(:([^ ]+) )?([^ ]+)/
         prefix = $2
-        command = $3
+        command = $3.upcase
         rest = $'.chomp
         params = if rest =~ / :/
           $`.split << $'

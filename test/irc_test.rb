@@ -19,7 +19,7 @@ describe Hellbender::IRC do
                   @irc.parse_msg(":Nick!user@ser.ver PRIVMSG #channel :hello, world!\r\n")
     assert_equal [nil, "PRIVMSG", ["bar", "hello"]], @irc.parse_msg("PRIVMSG bar :hello")
     assert_equal [nil, "CMD", ["x", ""]], @irc.parse_msg("CMD x :")
-    assert_equal ["ser.ver", "CMD", ["x", ""]], @irc.parse_msg(":ser.ver CMD x :")
+    assert_equal ["ser.ver", "CMD", ["x", ""]], @irc.parse_msg(":ser.ver cmd x :")
     assert_equal [nil, "PING", ["123 45"]], @irc.parse_msg("PING :123 45")
   end
 
