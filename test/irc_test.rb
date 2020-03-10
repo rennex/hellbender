@@ -47,14 +47,6 @@ describe Hellbender::IRC do
     assert_equal 0, q.size
   end
 
-  it "ignores listeners with too much backlog" do
-    q = Queue.new
-    5.times {|i| q << i }
-    @irc.add_listener(q)
-    @irc.process_msg(nil, "CMD", [])
-    assert_equal 5, q.size
-  end
-
   it "sends only the first line of raw commands" do
     mock = Minitest::Mock.new
     mock.expect(:write, nil, ["CMD :foo\r\n"])

@@ -75,8 +75,6 @@ module Hellbender
 
       @listener_mutex.synchronize do
         @listeners.each do |queue|
-          # ignore listeners that have too much backlog
-          next if queue.size >= 5
           # send copies of the data
           queue << [prefix.dup, command.dup, params.map(&:dup)]
         end
