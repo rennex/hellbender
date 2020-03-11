@@ -9,9 +9,10 @@ describe Util do
     assert_equal "{foo|bar}", Util.irccase('[foo\BAR]')
   end
 
-  it "can compare IRC nicks case-insensitively" do
-    assert Util.nickcmp('FOO[\]', "foo{|}")
-    refute Util.nickcmp(nil, "bar")
+  it "can compare IRC names case-insensitively" do
+    assert Util.irccmp('FOO[\]', "foo{|}")
+    assert Util.irccmp("#Channel", "#channel")
+    refute Util.irccmp(nil, "bar")
   end
 
   it "guesses message encodings and converts them to UTF-8" do

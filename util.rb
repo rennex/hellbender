@@ -11,14 +11,14 @@ module Hellbender
     end
 
     # convert nicks to lowercase with IRC rules
-    def irccase(nick)
-      nick.downcase.tr("[]\\", "{}|")
+    def irccase(name)
+      name.downcase.tr("[]\\", "{}|")
     end
 
-    # compare nicks case-insensitively
-    def nickcmp(nick1, nick2)
-      if nick1 && nick2
-        irccase(nick1) == irccase(nick2)
+    # compare nicks / channel names case-insensitively
+    def irccmp(name1, name2)
+      if name1 && name2
+        irccase(name1) == irccase(name2)
       end
     end
 
