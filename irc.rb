@@ -30,7 +30,6 @@ module Hellbender
       log.info "Connecting to server #{config["host"]}:#{config["port"]}"
       @sock = TCPSocket.new(config["host"], config["port"], config["bindhost"])
       log.info "Connection established"
-      @connected = true
 
       pass = config["pass"]
       if pass
@@ -68,10 +67,12 @@ module Hellbender
       end
 
       case command
+      when "001"
+        log.info "Login to server was successful"
+        @connected = true
+
       when "PING"
         sendraw "PONG #{params.first}", no_log: true
-        # no need to bother listeners with this
-        return
 
       when "NICK"
         # track our own nick, in case the server changes it

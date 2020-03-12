@@ -44,7 +44,7 @@ describe Hellbender::IRC do
       @irc.process_msg(nil, "PING", ["foo"])
     }
     assert_equal "PONG foo", ponged
-    assert_equal 0, q.size
+    assert_equal 1, q.size
   end
 
   it "sends only the first line of raw commands" do
