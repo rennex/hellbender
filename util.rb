@@ -12,7 +12,7 @@ module Hellbender
 
     # convert nicks to lowercase with IRC rules
     def irccase(name)
-      name.downcase.tr("[]\\", "{}|")
+      name.downcase.tr('[]~\\', "{}^|")
     end
 
     # compare nicks / channel names case-insensitively

@@ -6,7 +6,7 @@ include Hellbender
 
 describe Util do
   it "can convert IRC nicks to lower case" do
-    assert_equal "{foo|bar}", Util.irccase('[foo\BAR]')
+    assert_equal "{^foo|bar}", Util.irccase('[~foo\BAR]')
   end
 
   it "can compare IRC names case-insensitively" do
