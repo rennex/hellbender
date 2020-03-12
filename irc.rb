@@ -33,7 +33,11 @@ module Hellbender
       @connected = true
 
       pass = config["pass"]
-      sendraw "PASS #{pass}" if pass
+      if pass
+        log.debug '>>"PASS <redacted>"'
+        sendraw "PASS #{pass}", no_log: true
+      end
+
       @nick = config['nick']
       sendraw "NICK #{@nick}"
       sendraw "USER #{config['username']} #{config['bindhost'] || 'localhost'} " +
