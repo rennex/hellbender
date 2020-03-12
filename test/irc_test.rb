@@ -28,7 +28,7 @@ describe Hellbender::IRC do
     @irc.add_listener(q)
     message = ["ser.ver", "PRIVMSG", ["you", "hello"]]
 
-    @irc.process_msg(*message, "should not see this")
+    @irc.process_msg(*message)
     assert_equal 1, q.size
     r = q.pop
     assert_equal message, r

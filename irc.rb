@@ -53,19 +53,26 @@ module Hellbender
         line = @sock.gets || break
         guess_encoding(line)
         parsed = parse_msg(line)
-        process_msg(*parsed, line) if parsed
+        if parsed
+          log_msg(*parsed, line)
+          process_msg(*parsed)
+        else
+          log.error "Malformed message: #{line.inspect}" unless line.strip.empty?
+        end
       end
       log.warn "Lost connection to server"
       @connected = false
     end
 
-    # handle an incoming server message
-    def process_msg(prefix, command, params, rawline = nil)
+    def log_msg(prefix, command, params, line)
       # log messages, except the MOTD and PINGs
       unless ["375", "372", "376", "PING"].include? command
-        log.debug "<<#{rawline.chomp}" if rawline
+        log.debug "<<#{line.chomp}"
       end
+    end
 
+    # handle an incoming server message
+    def process_msg(prefix, command, params)
       case command
       when "001"
         log.info "Login to server was successful"
