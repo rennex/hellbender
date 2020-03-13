@@ -10,7 +10,7 @@ class LoggerFormatter
 
   def call(severity, datetime, progname, msg)
     time = datetime.strftime("%H:%M:%S.%L")
-    # 2m = faint, 22m = normal brightness, 0m = reset style
-    "\x1b[#{COLORS[severity] || 0};2m#{time} \x1b[22m#{msg}\x1b[0m\n"
+    # 1G = go to column 1, 2m = faint, 22m = normal brightness, 0m = reset style
+    "\e[1G\e[#{COLORS[severity] || 0};2m#{time} \e[22m#{msg}\e[0m\n"
   end
 end
