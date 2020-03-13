@@ -6,6 +6,7 @@ module Hellbender
     def initialize(name)
       @name = name
     end
+    def self.[](*args); new(*args); end
 
     def to_s
       @name
@@ -22,7 +23,7 @@ module Hellbender
     end
 
     def msg(text)
-      irc.sendraw "PRIVMSG #{self.to_s} :#{text}"
+      irc.sendraw "PRIVMSG #{self} :#{text}"
     end
     alias privmsg msg
 

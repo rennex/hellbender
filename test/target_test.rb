@@ -16,7 +16,7 @@ describe Target do
   end
 
   it "can parse bare nicknames" do
-    assert_kind_of User, Target.parse('[\w^e{i-r}d`o|]')
+    assert_kind_of User, Target.parse('[\w^e{i-r}d`o|]_')
   end
 
   it "saves its irc parameter" do
@@ -81,6 +81,13 @@ describe Target do
     t.msg("bar")
     t.privmsg("bar")
     assert_mock irc
+  end
+
+  it "has User[] and Channel[]" do
+    u = User["nick!user@example.com"]
+    assert_equal "nick", u.nick
+    c = Channel["#foo"]
+    assert_equal "#foo", c.name
   end
 
 end
