@@ -128,11 +128,3 @@ module Hellbender
     end
   end
 end
-
-
-if $0 == __FILE__
-  config = YAML.load(File.open("config.yml"))
-  irc = Hellbender::IRC.new(config["server"])
-  irc.run
-end
-
