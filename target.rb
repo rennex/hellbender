@@ -9,9 +9,9 @@ module Hellbender
     end
     attr_accessor :irc, :name
 
-    def initialize(name)
+    def initialize(name, irc = Target.irc)
       @name = name
-      @irc = Target.irc
+      @irc = irc
     end
     def self.[](*args); new(*args); end
 
@@ -19,14 +19,12 @@ module Hellbender
       @name
     end
 
-    def self.parse(target, irc = nil)
-      ret = if target =~ /^[&#+!]/
-        Channel.new(target)
+    def self.parse(target, irc = Target.irc)
+      if target =~ /^[&#+!]/
+        Channel.new(target, irc)
       else
-        User.new(target) rescue Target.new(target)
+        User.new(target, irc) rescue Target.new(target, irc)
       end
-      ret.irc = irc if irc
-      ret
     end
 
     def msg(text)
@@ -56,9 +54,8 @@ module Hellbender
     attr_reader :nick, :user, :host
     alias name nick
 
-    def initialize(prefix)
-      # this sets @irc
-      super(nil)
+    def initialize(prefix, irc = Target.irc)
+      @irc = irc
       # parse Nick!user@host
       if prefix =~ /^([^!@]+)!([^@]+)@([^!@]+)$/
         @nick = $1
