@@ -1,18 +1,32 @@
 
 require_relative "irc"
-require_relative "target"
+require_relative "message"
+
+require "set"
 
 module Hellbender
   class Bot
     include UtilMethods
 
-    attr_reader :irc, :channels
+    attr_reader :irc, :nick
     def initialize(config = {})
       @irc = IRC.new(config["server"])
+      Target.irc = @irc
+      @nick = config["server"]["nick"]
       @queue = Queue.new
+      @mutex = Mutex.new
       @irc.add_listener(@queue)
-      @channels = []
+      @channels = Set.new
     end
+
+    def sync
+      @mutex.synchronize { yield }
+    end
+
+    def channels
+      sync { @channels.dup }
+    end
+    def log;  @irc.log;  end
 
     def run
       Thread.new {
@@ -25,35 +39,43 @@ module Hellbender
     end
 
     def process_msg(prefix, command, params)
-      by_us = prefix && irccase(prefix).start_with?(irccase("#{nick}!"))
-      to_us = irccmp(params.first, nick)
-      if prefix =~ /^([^!@]+)!([^!@]+)/
-        from_nick = $1
-        from_host = $2
-      else
-        from_nick = from_host = nil
-      end
+      m = Message.new(prefix, command, params, @irc)
 
+      # track our own activity
       case command
+      when "NICK"
+        if m.user == @nick
+          @nick = m.target
+          log.info "Our nickname changed to #{@nick}"
+        end
+
       when "JOIN"
-        if by_us
-          chan = params.first
-          log.info "Joined #{chan}"
-          @channels << chan
+        if m.user == @nick
+          log.info "We joined #{m.channel}"
+          sync { @channels << m.channel }
+        end
+
+      when "PART"
+        if m.user == @nick
+          log.info "We left #{m.channel}"
+          sync { @channels.delete(m.channel) }
+        end
+
+      when "KICK"
+        if m.target == @nick
+          log.warn "We were kicked from #{m.channel} by #{m.user}:\e[0m #{m.message}"
+          sync { @channels.delete(m.channel) }
         end
 
       when "PRIVMSG"
-        if to_us
-          log.info "(MSG) <#{from_nick}> #{params.last}"
-        elsif by_us
-          log.warn "someone speaking on our behalf"
+        if m.target == @nick
+          log.info "<#{m.user}>\e[0m #{m.message}"
         end
 
       end
+
     end
 
-    def nick; @irc.nick; end
-    def log;  @irc.log;  end
   end
 end
 
