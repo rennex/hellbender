@@ -63,7 +63,9 @@ describe Target do
     refute_equal User.new("foo"), Channel.new("foo")
     refute_equal User.new("foo"), User.new("bar")
     assert_equal User.new("FOO"), User.new("foo")
+    assert_equal User.new("FOO"), "foo"
     assert_equal Channel.new("bar"), Channel.new("BAR")
+    assert_equal Channel.new("#bar"), "#BAR"
   end
 
   it "can be sorted" do

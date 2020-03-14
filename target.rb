@@ -37,7 +37,12 @@ module Hellbender
     end
 
     def ==(other)
-      self.class == other.class && Util.irccmp(self.to_s, other.to_s)
+      case other
+      when self.class, String
+        Util.irccmp(self.to_s, other.to_s)
+      else
+        false
+      end
     end
 
     def eql?(other)
