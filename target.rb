@@ -73,7 +73,7 @@ module Hellbender
         @nick = prefix
         @user = @host = nil
       else
-        raise "invalid prefix for parsing User"
+        raise "invalid prefix for parsing User: #{prefix}"
       end
     end
 
