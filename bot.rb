@@ -17,6 +17,7 @@ module Hellbender
       @mutex = Mutex.new
       @irc.add_listener(@queue)
       @channels = Set.new
+      @subs = []
     end
 
     def sync
@@ -74,6 +75,24 @@ module Hellbender
 
       end
 
+      # call all the interested subscribers
+      threads = []
+      sync {
+        @subs.each do |wanted, code|
+          if wanted.include?(:all) || wanted.include?(command)
+            threads << Thread.new { code.call(m) }
+          end
+        end
+      }
+      # return the threads so tests can wait for them to finish
+      return threads
+
+    end
+
+    def subscribe(commands, &block)
+      sync {
+        @subs << [Array(commands), block]
+      }
     end
 
   end
