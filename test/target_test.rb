@@ -75,10 +75,18 @@ describe Target do
     assert_equal [u3, u2, u1], [u2, u1, u3].sort
   end
 
-  it "can be used as a hash key (case-insensitively)" do
+  it "can be used as a hash key and in a set (case-insensitively)" do
     h = {User.new("foo") => Channel.new("#bar")}
     assert_equal Channel.new("#BAR"), h[User.new("FOO")]
     assert_equal User.new("FOO"), h.invert[Channel.new("#BAR")]
+    assert_nil h["foo"]
+    s = Set.new
+    s << h.keys.first
+    s << h.values.first
+    assert s.include?(User.new("Foo"))
+    refute s.include?(User.new("bar"))
+    assert s.include?(Channel.new("#BAR"))
+    refute s.include?(Channel.new("foo"))
   end
 
   it "can be sent a message to" do
