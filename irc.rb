@@ -29,7 +29,7 @@ module Hellbender
 
       pass = config["pass"]
       if pass
-        log.debug '>>"PASS <redacted>"'
+        log.debug ">>\e[0;1m\"PASS <redacted>\""
         sendraw "PASS #{pass}", no_log: true
       end
 
@@ -83,7 +83,7 @@ module Hellbender
         sendraw "PONG #{params.first}", no_log: true
 
       when "NICK"
-        # track our own nick, in case the server changes it
+        # track our own nickname
         if irccase(prefix).start_with?(irccase("#{@nick}!"))
           @nick = params.first
           log.info "Our nickname changed to #{@nick}"
@@ -124,7 +124,7 @@ module Hellbender
     def sendraw(msg, no_log: false)
       if msg =~ /\A([^\r\n]+)/
         line = $1
-        log.debug ">>#{line.inspect}" unless no_log
+        log.debug ">>\e[0;1m#{line.inspect}" unless no_log
         # thread-safe sending!
         @sock_mutex.synchronize do
           @sock.write "#{line}\r\n"
