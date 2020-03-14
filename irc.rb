@@ -10,7 +10,7 @@ module Hellbender
   class IRC
     include UtilMethods
 
-    attr_reader :config, :log, :nick, :connected
+    attr_reader :config, :log, :connected
     def initialize(config = {})
       @config = config
       @connected = false
@@ -33,8 +33,7 @@ module Hellbender
         sendraw "PASS #{pass}", no_log: true
       end
 
-      @nick = config['nick']
-      sendraw "NICK #{@nick}"
+      sendraw "NICK #{config['nick']}"
       sendraw "USER #{config['username']} #{config['bindhost'] || 'localhost'} " +
               "#{config['host']} :#{config['realname']}"
 
@@ -81,14 +80,6 @@ module Hellbender
 
       when "PING"
         sendraw "PONG #{params.first}", no_log: true
-
-      when "NICK"
-        # track our own nickname
-        if irccase(prefix).start_with?(irccase("#{@nick}!"))
-          @nick = params.first
-          log.info "Our nickname changed to #{@nick}"
-        end
-
       end
 
       until @new_listeners.empty?

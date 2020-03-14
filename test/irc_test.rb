@@ -55,12 +55,6 @@ describe Hellbender::IRC do
     assert_mock mock
   end
 
-  it "tracks its own nickname" do
-    @irc.instance_variable_set :@nick, "Bot1"
-    @irc.process_msg(*@irc.parse_msg(":bot1!~hellbende@example.net NICK :Bot2"))
-    assert_equal "Bot2", @irc.nick
-  end
-
   it "logs received messages right" do
     logger = Minitest::Mock.new
     @irc.instance_variable_set :@log, logger
