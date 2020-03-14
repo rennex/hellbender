@@ -1,10 +1,17 @@
 
+require_relative "util"
+
 module Hellbender
   class Target
+    class << self
+      # support setting and getting Target.irc
+      attr_accessor :irc
+    end
     attr_accessor :irc, :name
 
     def initialize(name)
       @name = name
+      @irc = Target.irc
     end
     def self.[](*args); new(*args); end
 
@@ -18,7 +25,7 @@ module Hellbender
       else
         User.new(target) rescue Target.new(target)
       end
-      ret.irc = irc
+      ret.irc = irc if irc
       ret
     end
 
@@ -50,6 +57,8 @@ module Hellbender
     alias name nick
 
     def initialize(prefix)
+      # this sets @irc
+      super(nil)
       # parse Nick!user@host
       if prefix =~ /^([^!@]+)!([^@]+)@([^!@]+)$/
         @nick = $1

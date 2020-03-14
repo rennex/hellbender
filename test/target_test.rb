@@ -1,6 +1,6 @@
 require "minitest/autorun"
 
-require_relative "../target.rb"
+require_relative "../target"
 
 include Hellbender
 
@@ -19,8 +19,15 @@ describe Target do
     assert_kind_of User, Target.parse('[\w^e{i-r}d`o|]_')
   end
 
-  it "saves its irc parameter" do
+  it "supports irc parameter and Target.irc" do
+    irc = Object.new
+    Target.irc = irc
+    assert_same irc, Target.parse("nick").irc
+    assert_same irc, Target.parse("#chan").irc
+    assert_same irc, User.new("nick").irc
+    assert_same irc, Channel.new("#chan").irc
     assert_equal "foo", Target.parse("bar", "foo").irc
+    Target.irc = nil
   end
 
   it "can parse channel names" do
