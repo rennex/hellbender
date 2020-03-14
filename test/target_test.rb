@@ -11,6 +11,7 @@ describe Target do
     assert_equal "nick", t.nick
     assert_equal "nick", t.name
     assert_equal "nick", t.to_s
+    assert_equal "#<Hellbender::User: nick>", t.inspect
     assert_equal "user", t.user
     assert_equal "example.com", t.host
   end

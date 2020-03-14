@@ -18,6 +18,9 @@ module Hellbender
     def to_s
       @name
     end
+    def inspect
+      "#<#{self.class}: #{to_s}>"
+    end
 
     def self.parse(target, irc = Target.irc)
       if target =~ /^[&#+!]/

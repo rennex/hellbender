@@ -24,7 +24,7 @@ module Hellbender
     end
 
     def channels
-      sync { @channels.dup }
+      sync { @channels.to_a }
     end
     def log;  @irc.log;  end
 
