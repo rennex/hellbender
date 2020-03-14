@@ -61,8 +61,13 @@ module Hellbender
     end
 
     def log_msg(prefix, command, params, line)
-      # log messages, except the MOTD and PINGs
-      unless ["375", "372", "376", "PING"].include? command
+      case command
+      when "375", "372", "376", "PING"
+        # don't log the MOTD or PINGs
+      when /^[45]\d\d$/
+        # log error replies (400 to 599) at error level
+        log.error "<<#{line.chomp}"
+      else
         log.debug "<<#{line.chomp}"
       end
     end

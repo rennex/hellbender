@@ -61,4 +61,29 @@ describe Hellbender::IRC do
     assert_equal "Bot2", @irc.nick
   end
 
+  it "logs received messages right" do
+    logger = Minitest::Mock.new
+    @irc.instance_variable_set :@log, logger
+
+    # no logs for these
+    ["375", "372", "376", "PING"].each do |cmd|
+      @irc.log_msg(nil, cmd, ["x"], "line")
+      assert_mock logger
+    end
+
+    # error logs
+    ["400", "500", "599"].each do |cmd|
+      logger.expect(:error, nil, [String])
+      @irc.log_msg(nil, cmd, ["x"], "line")
+      assert_mock logger
+    end
+
+    # debug logs
+    ["399", "600", "123", "FOOBAR"].each do |cmd|
+      logger.expect(:debug, nil, [String])
+      @irc.log_msg(nil, cmd, ["x"], "line")
+      assert_mock logger
+    end
+  end
+
 end

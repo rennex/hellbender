@@ -6,6 +6,7 @@ module Hellbender
     attr_reader :text, :sender, :recipient, :channel, :irc
     alias user sender
     alias message text
+    alias to_s text
 
     def initialize(sender, recipient, text, irc)
       @sender = Target.parse(sender, irc)
