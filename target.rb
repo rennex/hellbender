@@ -15,13 +15,6 @@ module Hellbender
     end
     def self.[](*args); new(*args); end
 
-    def to_s
-      @name
-    end
-    def inspect
-      "#<#{self.class}: #{to_s}>"
-    end
-
     def self.parse(target, irc = Target.irc)
       if target =~ /^[&#+!]/
         Channel.new(target, irc)
@@ -34,6 +27,14 @@ module Hellbender
       irc.sendraw "PRIVMSG #{self} :#{text}"
     end
     alias privmsg msg
+
+    def to_s
+      @name
+    end
+
+    def inspect
+      "#<#{self.class}: #{to_s}>"
+    end
 
     def <=>(other)
       Util.irccase(self.to_s) <=> Util.irccase(other.to_s)
@@ -48,13 +49,11 @@ module Hellbender
       end
     end
 
-    def eql?(other)
-      self == other
-    end
+    alias eql? ==
+
     def hash
       Util.irccase(self.to_s).hash
     end
-
   end
 
 

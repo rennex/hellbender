@@ -27,7 +27,10 @@ module Hellbender
     def channels
       sync { @channels.to_a }
     end
-    def log;  @irc.log;  end
+
+    def log
+      @irc.log
+    end
 
     def run
       Thread.new {

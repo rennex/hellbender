@@ -43,8 +43,9 @@ module Hellbender
 
     # support checking e.g. m.privmsg? or m.join?
     def method_missing(m)
-      if m =~ /(.+)\?$/
-        @command == $1.upcase
+      meth = m.to_s
+      if meth.end_with?("?")
+        @command == meth.chop.upcase
       else
         super
       end

@@ -93,12 +93,15 @@ module Hellbender
 
     # parse messages received from the server
     def parse_msg(line)
-      if line =~ /\A(:([^ ]+) )?([^ ]+)/
-        prefix = $2
-        command = $3.upcase
-        rest = $'.chomp
-        params = if rest =~ / :/
-          $`.split << $'
+      line.match(/\A(:([^ ]+) )?([^ ]+)/) do |md|
+        prefix = md[2]
+        command = md[3].upcase
+        rest = md.post_match.chomp
+
+        # the last parameter can have spaces by starting with a colon
+        rest_md = rest.match(/ :/)
+        params = if rest_md
+          rest_md.pre_match.split << rest_md.post_match
         else
           rest.split
         end
