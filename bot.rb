@@ -106,6 +106,21 @@ module Hellbender
       User.new(@nick, @irc).mode(*args)
     end
 
+    def plugin(class_or_instance)
+      case class_or_instance
+      when Class
+        instance = class_or_instance.new
+      else
+        instance = class_or_instance
+      end
+
+      unless instance.is_a? Hellbender::Plugin
+        raise TypeError, "plugin must be a Hellbender::Plugin"
+      end
+
+      instance._hb_plug_into(self)
+    end
+
   end
 end
 
