@@ -27,4 +27,15 @@ describe Util do
     end
   end
 
+  it "can validate nicknames" do
+    assert Util.valid_nick?('[\w^e{i-r}d`o|]_')
+    refute Util.valid_nick?('#foo')
+    refute Util.valid_nick?('nick and extra stuff')
+    refute Util.valid_nick?(nil)
+
+    Util.validate_nick!("foo")
+    assert_raises(ArgumentError) { Util.validate_nick!("#bar") }
+    assert_raises(ArgumentError) { Util.validate_nick!("two words") }
+  end
+
 end

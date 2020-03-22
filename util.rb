@@ -22,6 +22,17 @@ module Hellbender
       end
     end
 
+    # check that a nickname contains only allowed characters
+    def valid_nick?(nick)
+      nick.to_s.match(/^(?![-0-9])[-a-z0-9\[\]\|`^{}\\_]+$/i)
+    end
+
+    # raise an exception if the nickname isn't valid
+    def validate_nick!(nick)
+      unless valid_nick?(nick.to_s)
+        raise ArgumentError, "invalid nickname: #{nick.inspect}"
+      end
+    end
   end
 
   class Util

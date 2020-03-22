@@ -108,5 +108,59 @@ describe Target do
     assert_equal "#foo", c.name
   end
 
+  it "supports Target operations" do
+    irc = Minitest::Mock.new
+    # helper to check for resulting raw commands
+    def irc.expect_raw(str)
+      expect(:sendraw, nil, [str])
+    end
+
+    c = Channel.new("#foo", irc)
+
+    irc.expect_raw "JOIN #foo"
+    c.join
+    irc.expect_raw "JOIN #foo bar"
+    c.join("bar")
+
+    irc.expect_raw "PART #foo"
+    c.part
+    irc.expect_raw "PART #foo :bye"
+    c.part("bye")
+
+    2.times { irc.expect_raw "MODE #foo +o usr" }
+    c.mode("+o usr")
+    c.mode("+o", "usr")
+
+    u = User.new("usr", irc)
+    irc.expect_raw "MODE usr +i"
+    u.mode("+i")
+
+    irc.expect_raw "TOPIC #foo :new topic"
+    c.topic = "new topic"
+    irc.expect_raw "TOPIC #foo :"
+    c.topic = nil
+
+    2.times { irc.expect_raw "INVITE user #foo" }
+    c.invite("user")
+    c.invite(User["user"])
+    assert_raises(ArgumentError) { c.invite("evil #user") }
+
+    irc.expect_raw "KICK #foo usr"
+    c.kick("usr")
+    irc.expect_raw "KICK #foo usr :for reasons"
+    c.kick(User["usr"], "for reasons")
+
+    irc.expect_raw "MODE #foo +o user"
+    c.op("user")
+    irc.expect_raw "MODE #foo +v user"
+    c.voice(User["user"])
+    assert_raises(ArgumentError) { c.op("evil input") }
+    assert_raises(ArgumentError) { c.voice("evil input") }
+
+    assert_mock irc
+  end
+
 end
+
+
 

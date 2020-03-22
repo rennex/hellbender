@@ -23,10 +23,15 @@ module Hellbender
       end
     end
 
+    # common implementations for Users and Channels
     def msg(text)
       irc.sendraw "PRIVMSG #{self} :#{text}"
     end
     alias privmsg msg
+
+    def mode(*args)
+      irc.sendraw("MODE #{self} #{args.flatten.join(' ')}")
+    end
 
     def to_s
       @name
@@ -68,7 +73,7 @@ module Hellbender
         @nick = $1
         @user = $2
         @host = $3
-      elsif prefix =~ /^(?![-0-9])[-a-z0-9\[\]\|`^{}\\_]+$/i
+      elsif Util.valid_nick?(prefix)
         @nick = prefix
         @user = @host = nil
       else
@@ -83,6 +88,41 @@ module Hellbender
 
 
   class Channel < Target
+    def join(key = nil)
+      irc.sendraw("JOIN #{self} #{key}".strip)
+    end
+
+    def part(message = nil)
+      msg = " :#{message}" if message
+      irc.sendraw("PART #{self}#{msg}")
+    end
+
+    def topic=(newtopic)
+      irc.sendraw("TOPIC #{self} :#{newtopic}")
+    end
+
+    def invite(user)
+      # Check the nickname since it might be malicious input,
+      # for example "realnick #wrongchannel\n"
+      Util.validate_nick!(user)
+      irc.sendraw("INVITE #{user} #{self}")
+    end
+
+    def kick(user, comment = nil)
+      com = " :#{comment}" if comment
+      irc.sendraw("KICK #{self} #{user}#{com}")
+    end
+
+    def op(user)
+      Util.validate_nick!(user)
+      mode("+o", user)
+    end
+
+    def voice(user)
+      Util.validate_nick!(user)
+      mode("+v", user)
+    end
+
   end
 
 end
