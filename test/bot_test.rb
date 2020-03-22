@@ -78,11 +78,15 @@ describe Hellbender::Bot do
     assert_equal "hello", @state.first.text
   end
 
-  it "has a setter for its own nickname" do
+  it "has setters for its own nickname and mode" do
     irc = Minitest::Mock.new
     irc.expect(:sendraw, nil, ["NICK newnick"])
     @bot.instance_variable_set :@irc, irc
     @bot.nick = "newnick"
+
+    irc.expect(:sendraw, nil, ["MODE Hellbender +i"])
+    @bot.mode("+i")
+
     assert_mock irc
   end
 end

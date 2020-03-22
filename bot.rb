@@ -102,6 +102,10 @@ module Hellbender
       irc.sendraw("NICK #{newnick}")
     end
 
+    def mode(*args)
+      User.new(@nick, @irc).mode(*args)
+    end
+
   end
 end
 
