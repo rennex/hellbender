@@ -92,9 +92,9 @@ module Hellbender
 
     end
 
-    def subscribe(commands, &block)
+    def subscribe(commands, callable = nil, &block)
       sync {
-        @subs << [Array(commands), block]
+        @subs << [Array(commands), callable || block]
       }
     end
 

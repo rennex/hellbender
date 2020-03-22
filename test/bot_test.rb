@@ -63,4 +63,18 @@ describe Hellbender::Bot do
     assert_equal "u", msg_from.to_s
     assert_equal "hello", msg_text
   end
+
+  it "supports subscribe with a method instead of a block" do
+    @state = []
+    def subscriber(m)
+      @state << m
+    end
+
+    @bot.subscribe("PRIVMSG", method(:subscriber))
+
+    @bot.process_msg("u", "PRIVMSG", ["#chan", "hello"])
+
+    assert_equal 1, @state.size
+    assert_equal "hello", @state.first.text
+  end
 end
