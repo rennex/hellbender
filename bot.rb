@@ -98,6 +98,10 @@ module Hellbender
       }
     end
 
+    def nick=(newnick)
+      irc.sendraw("NICK #{newnick}")
+    end
+
   end
 end
 
