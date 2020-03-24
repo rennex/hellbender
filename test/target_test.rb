@@ -95,9 +95,11 @@ describe Target do
     2.times do
       irc.expect(:sendraw, nil, ["PRIVMSG foo :bar"])
     end
+    irc.expect(:sendraw, nil, ["NOTICE foo :quux"])
     t = Target.parse("foo", irc)
     t.msg("bar")
     t.privmsg("bar")
+    t.notice("quux")
     assert_mock irc
   end
 

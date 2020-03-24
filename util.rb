@@ -29,7 +29,7 @@ module Hellbender
 
     # raise an exception if the nickname isn't valid
     def validate_nick!(nick)
-      unless valid_nick?(nick.to_s)
+      unless valid_nick?(nick)
         raise ArgumentError, "invalid nickname: #{nick.inspect}"
       end
     end

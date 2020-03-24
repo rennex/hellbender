@@ -29,6 +29,10 @@ module Hellbender
     end
     alias privmsg msg
 
+    def notice(text)
+      irc.sendraw "NOTICE #{self} :#{text}"
+    end
+
     def mode(*args)
       irc.sendraw("MODE #{self} #{args.flatten.join(' ')}")
     end

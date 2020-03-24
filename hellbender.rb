@@ -27,7 +27,7 @@ class Calculator
 
   command "calc", method: \
   def calculate(m)
-    if m.text =~ %r{^([-+*/0-9. ()]+)$}
+    if m.text =~ %r{^[-+*/0-9. ()]+$}
       begin
         if m.text.index("(")
           m.reply "Computing..."
