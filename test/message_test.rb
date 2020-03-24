@@ -17,6 +17,7 @@ describe Message do
     assert_equal "Hellbender", m.target.nick
     assert_nil m.channel
 
+    assert_equal "PRIVMSG", m.command
     assert_equal "Hello", m.text
     assert_equal "Hello", m.message
 
@@ -47,6 +48,22 @@ describe Message do
     m.reply("bar")
     m.reply("bar2", nick: true)
     assert_mock @irc
+  end
+
+  it "can be used as a hash key" do
+    m1 = Message.new("ser.ver", "PRIVMSG", ["Hellbender", "Hello"])
+    m2 = Message.new("usr!a@b.c", "PRIVMSG", ["#foo", "hello"])
+    m3 = Message.new("a", "b", ["c"])
+    h = {m1 => 1, m2 => m3}
+    assert_equal 1, h[m1]
+    assert_same m3, h[m2]
+    assert_nil h[m3]
+    assert_same m2, h.invert[Message.new("a", "b", ["c"])]
+  end
+
+  it "has an inspect method" do
+    m = Message.new("a", "b", ["c", "d"])
+    assert_equal '#<Message "b" from "a": ["c", "d"]>', m.inspect
   end
 
   it "supports checking m.privmsg? etc" do

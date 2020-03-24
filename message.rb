@@ -3,7 +3,8 @@ require_relative "target"
 
 module Hellbender
   class Message
-    attr_reader :text, :sender, :target, :params, :user, :channel, :irc
+    attr_accessor :text
+    attr_reader :sender, :target, :params, :user, :channel, :irc, :command
     alias message text
 
     def initialize(prefix, command, params, irc = Target.irc)
@@ -39,6 +40,21 @@ module Hellbender
         @text = params.last
 
       end
+    end
+
+    def ==(other)
+      instance_variables.all? do |var|
+        instance_variable_get(var) == other.instance_variable_get(var)
+      end
+    end
+    alias eql? ==
+
+    def hash
+      instance_variables.map {|var| instance_variable_get(var).hash }.reduce(:^)
+    end
+
+    def inspect
+      "#<Message \"#{@command}\" from \"#{@sender}\": #{params.inspect}>"
     end
 
     # support checking e.g. m.privmsg? or m.join?

@@ -52,7 +52,8 @@ module Hellbender
           my_callback = proc do |m|
             m.text.match(/^[!.]#{cmdstr} *($| +(.+))/i) do |md|
               # make m.text contain only the command's arguments
-              m.text.replace(md[2] || "")
+              m = m.dup
+              m.text = md[2] || ""
               callback.call(m)
             end
           end
