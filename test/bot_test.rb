@@ -5,14 +5,7 @@ include Hellbender
 
 describe Bot do
   before do
-    @bot = Hellbender::Bot.new({"server" => {"nick" => "Hellbender"}})
-    @bot.log.level = Logger::FATAL
-    class << @bot
-      def process_msg(*args)
-        # wait for all the subscribers to finish running
-        super.each(&:join)
-      end
-    end
+    @bot = create_test_bot
   end
 
   it "tracks its own nickname" do
