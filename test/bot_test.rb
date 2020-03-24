@@ -36,8 +36,10 @@ describe Bot do
 
   it "supports subscribing to messages" do
     all_count = 0
-    @bot.subscribe(:all) {
+    all_m = nil
+    @bot.subscribe(:all) {|m|
       all_count += 1
+      all_m = m if m.command == "PRIVMSG"
     }
 
     join_part_count = 0
@@ -46,11 +48,10 @@ describe Bot do
     }
 
     msg_count = 0
-    msg_from = msg_text = nil
+    msg_m = nil
     @bot.subscribe("PRIVMSG") {|m|
       msg_count += 1
-      msg_from = m.user
-      msg_text = m.text
+      msg_m = m
     }
 
     @bot.process_msg("u", "FOOBAR", [])
@@ -61,8 +62,11 @@ describe Bot do
     assert_equal 4, all_count
     assert_equal 2, join_part_count
     assert_equal 1, msg_count
-    assert_equal "u", msg_from.to_s
-    assert_equal "hello", msg_text
+    assert_equal "u", msg_m.user.to_s
+    assert_equal "hello", msg_m.text
+
+    assert_equal all_m, msg_m
+    refute_same all_m, msg_m
   end
 
   it "supports subscribe with a method instead of a block" do

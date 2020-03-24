@@ -83,7 +83,7 @@ module Hellbender
       sync {
         @subs.each do |wanted, code|
           if wanted.include?(:all) || wanted.include?(command)
-            threads << Thread.new { code.call(m) }
+            threads << Thread.new { code.call(m.dup) }
           end
         end
       }

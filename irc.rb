@@ -86,7 +86,8 @@ module Hellbender
         @listeners << @new_listeners.pop
       end
       # freeze the data so listeners don't interfere with each other
-      data = [prefix.freeze, command.freeze, params.map(&:freeze)].freeze
+      params.each(&:freeze)
+      data = [prefix.freeze, command.freeze, params.freeze].freeze
       @listeners.each do |queue|
         queue << data
       end

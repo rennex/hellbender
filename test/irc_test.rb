@@ -32,10 +32,9 @@ describe Hellbender::IRC do
     r = q.pop
     assert_equal message, r
     # check that the objects have been frozen
-    assert r[0].frozen?
-    assert r[1].frozen?
-    assert r[2][0].frozen?
-    assert r[2][1].frozen?
+    assert r.frozen?
+    assert r.all?(&:frozen?)
+    assert r[2].all?(&:frozen?)
 
     # check ping replies
     ponged = nil
