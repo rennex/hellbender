@@ -1,5 +1,4 @@
-require "minitest/autorun"
-
+require_relative "test_helper"
 require_relative "../message.rb"
 
 include Hellbender

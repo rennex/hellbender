@@ -1,8 +1,9 @@
-require "minitest/autorun"
-
+require_relative "test_helper"
 require_relative "../bot.rb"
 
-describe Hellbender::Bot do
+include Hellbender
+
+describe Bot do
   before do
     @bot = Hellbender::Bot.new({"server" => {"nick" => "Hellbender"}})
     @bot.log.level = Logger::FATAL

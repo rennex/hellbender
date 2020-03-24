@@ -1,5 +1,4 @@
-require "minitest/autorun"
-
+require_relative "test_helper"
 require_relative "../target"
 
 include Hellbender
@@ -77,6 +76,7 @@ describe Target do
   end
 
   it "can be used as a hash key and in a set (case-insensitively)" do
+    require "set"
     h = {User.new("foo") => Channel.new("#bar")}
     assert_equal Channel.new("#BAR"), h[User.new("FOO")]
     assert_equal User.new("FOO"), h.invert[Channel.new("#BAR")]
