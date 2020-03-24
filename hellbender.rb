@@ -59,6 +59,10 @@ begin
   bot.plugin TopicComplainer.new("p0ngerz")
   bot.plugin Calculator
 
+  # define a custom helper
+  def bot.say(text)
+    channels.first.msg(text)
+  end
   # run a REPL on stdin
   Hellbender::REPL.launch(bot)
 

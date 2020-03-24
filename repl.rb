@@ -21,21 +21,23 @@ module Hellbender
     end
 
     def process_line
-      line = Readline.readline("\e[1Gruby> ", true)
-      if line
-        line.strip!
-        return if line.empty?
-
-        result = @bot.instance_eval(line)
-
-        puts "=> \e[1m" + result.inspect + "\e[0m"
+      line = Readline.readline("", true)
+      return if line.nil?
+      line.strip!
+      if line.empty?
+        Readline::HISTORY.pop
+        return
       end
 
-    rescue SystemExit
-      raise
+      begin
+        result = @bot.instance_eval(line)
+      rescue SystemExit
+        raise
+      rescue Exception => e
+        @bot.log.error "#{e.class}: #{e.message}"
+      end
 
-    rescue Exception => e
-      @bot.log.error "#{e.class}: #{e.message}"
+      puts "=> \e[1m#{result.inspect}\e[0m"
     end
 
   end
