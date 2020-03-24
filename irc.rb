@@ -85,9 +85,10 @@ module Hellbender
       until @new_listeners.empty?
         @listeners << @new_listeners.pop
       end
+      # freeze the data so listeners don't interfere with each other
+      data = [prefix.freeze, command.freeze, params.map(&:freeze)].freeze
       @listeners.each do |queue|
-        # send copies of the data
-        queue << [prefix.dup, command.dup, params.map(&:dup)]
+        queue << data
       end
     end
 

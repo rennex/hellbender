@@ -31,11 +31,11 @@ describe Hellbender::IRC do
     assert_equal 1, q.size
     r = q.pop
     assert_equal message, r
-    # check that the objects have been dup'd
-    refute_same message[0], r[0]
-    refute_same message[1], r[1]
-    refute_same message[2][0], r[2][0]
-    refute_same message[2][1], r[2][1]
+    # check that the objects have been frozen
+    assert r[0].frozen?
+    assert r[1].frozen?
+    assert r[2][0].frozen?
+    assert r[2][1].frozen?
 
     # check ping replies
     ponged = nil
