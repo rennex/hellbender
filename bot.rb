@@ -8,8 +8,9 @@ module Hellbender
   class Bot
     include UtilMethods
 
-    attr_reader :irc, :nick
-    def initialize(config = {})
+    attr_reader :irc, :nick, :config
+    def initialize(config)
+      @config = config
       @irc = IRC.new(config["server"])
       Target.irc = @irc
       @nick = config["server"]["nick"]

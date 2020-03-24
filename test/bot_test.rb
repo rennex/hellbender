@@ -8,6 +8,10 @@ describe Bot do
     @bot = create_test_bot
   end
 
+  it "has a getter for config" do
+    assert_kind_of Hash, @bot.config
+  end
+
   it "tracks its own nickname" do
     assert_equal "Hellbender", @bot.nick
     @bot.process_msg("Hellbender", "NICK", ["bot"])
