@@ -39,7 +39,7 @@ module Hellbender
         # turn symbols into Methods of the plugin instance
         callback = self.method(callback) if callback.is_a? Symbol
 
-        self.method("_hb_sub_#{sub_type}").call(matcher, callback)
+        self.method(:"_hb_sub_#{sub_type}").call(matcher, callback)
       end
     end
 

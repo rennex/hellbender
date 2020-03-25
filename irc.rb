@@ -24,7 +24,8 @@ module Hellbender
 
     def connect
       log.info "Connecting to server #{config["host"]}:#{config["port"]}"
-      @sock = TCPSocket.new(config["host"], config["port"], config["bindhost"])
+      @sock = Socket.tcp(config["host"], config["port"], config["bindhost"],
+              connect_timeout: (config["timeout"] || 10))
       log.info "Connection established"
 
       pass = config["pass"]
@@ -37,26 +38,37 @@ module Hellbender
       sendraw "USER #{config['username']} #{config['bindhost'] || 'localhost'} " +
               "#{config['host']} :#{config['realname']}"
 
-    rescue Errno::ECONNREFUSED
+    rescue Errno::ECONNREFUSED, Errno::EALREADY
+      # Socket.tcp with a connect timeout seems to raise EALREADY
+      # if the server refused the connection
       log.error "Connection refused"
+      return false
+
+    rescue Errno::ETIMEDOUT
+      log.error "Connection timed out"
       return false
     end
 
-    def run
-      connect or return
-      until @sock.eof?
-        line = @sock.gets || break
-        guess_encoding(line)
-        parsed = parse_msg(line)
-        if parsed
-          log_msg(*parsed, line)
-          process_msg(*parsed)
-        else
-          log.error "Malformed message: #{line.inspect}" unless line.strip.empty?
+    def run(reconnect: false)
+      loop do
+        if connect()
+          until @sock.eof?
+            line = @sock.gets || break
+            guess_encoding(line)
+            parsed = parse_msg(line)
+            if parsed
+              log_msg(*parsed, line)
+              process_msg(*parsed)
+            else
+              log.error "Malformed message: #{line.inspect}" unless line.strip.empty?
+            end
+          end
+          log.warn "Lost connection to server"
+          @connected = false
         end
+        break unless reconnect
+        sleep 1
       end
-      log.warn "Lost connection to server"
-      @connected = false
     end
 
     def log_msg(prefix, command, params, line)

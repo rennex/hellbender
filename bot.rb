@@ -33,14 +33,14 @@ module Hellbender
       @irc.log
     end
 
-    def run
+    def run(reconnect: false)
       Thread.new {
         loop do
           process_msg(*@queue.pop)
         end
       }
 
-      @irc.run
+      @irc.run(reconnect: reconnect)
     end
 
     def process_msg(prefix, command, params)

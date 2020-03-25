@@ -15,7 +15,7 @@ class TopicComplainer
     m.channel.msg "#{m.user}: quit changing the topic"
   end
 
-  react /^ping$/i, :ping
+  react /^ping$/i,
   def ping(m)
     m.reply @pongreply
   end
@@ -66,7 +66,7 @@ begin
   # run a REPL on stdin
   Hellbender::REPL.launch(bot)
 
-  bot.run
+  bot.run(reconnect: true)
 
 rescue Interrupt, SystemExit
   STDERR.puts "\nQuitting"

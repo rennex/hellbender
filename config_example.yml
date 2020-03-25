@@ -7,3 +7,5 @@ server:
   realname: Braindead bot
   ## specify bindhost to connect from a specified network interface
   # bindhost: my-cool-domain.example.org
+  ## timeout for establishing connection, default 10 seconds (plus a few)
+  # timeout: 10
