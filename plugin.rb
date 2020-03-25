@@ -3,6 +3,8 @@ require_relative "bot"
 
 module Hellbender
   module Plugin
+    attr_reader :bot
+
     module ClassMethods
       # like Bot#subscribe
       def subscribe(commands, methodname = nil, method: nil, &block)
@@ -31,6 +33,7 @@ module Hellbender
     end
 
     def _hb_plug_into(bot)
+      @bot = bot
       Array(self.class._hb_subscriptions).each do |command, callback|
         # turn symbols into Methods of the plugin instance
         callback = self.method(callback) if callback.is_a? Symbol

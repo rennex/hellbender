@@ -72,4 +72,10 @@ describe Plugin do
     assert_equal ["", "and foo"], instance.cmds
   end
 
+  it "saves bot instance to @bot" do
+    instance = @plugin.new
+    @bot.plugin instance
+    assert_same @bot, instance.bot
+  end
+
 end
