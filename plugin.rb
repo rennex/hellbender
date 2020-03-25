@@ -49,7 +49,7 @@ module Hellbender
 
     def _hb_sub_react(regexp, callback)
       bot.subscribe "PRIVMSG" do |m|
-        m.text.match(regexp) do |md|
+        regexp.match(m.text) do |md|
           if callback.arity == 1
             callback.call(m)
           else
@@ -61,11 +61,21 @@ module Hellbender
     end
 
     def _hb_sub_command(command, callback)
+      cmd_re =  case command
+                when Regexp
+                  command
+                when String
+                  Regexp.escape(command)
+                end
       bot.subscribe "PRIVMSG" do |m|
-        m.text.match(/^[!.]#{Regexp.escape(command)} *($| +(.+))/i) do |md|
+        m.text.match(/^[!.]#{cmd_re}(?:$| +)/i) do |md|
           # make m.text contain only the command's arguments
-          m.text = md[2] || ""
-          callback.call(m)
+          m.text = md.post_match
+          if callback.arity == 1
+            callback.call(m)
+          else
+            callback.call(m, md)
+          end
         end
       end
     end
