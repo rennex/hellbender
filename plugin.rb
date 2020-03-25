@@ -20,7 +20,6 @@ module Hellbender
       end
 
       # named command
-      # todo: private messages vs public?
       def command(cmdname, methodname = nil, method: nil, &block)
         callback = method || methodname || block
         @_hb_subscriptions << [:command, cmdname, callback]
@@ -33,46 +32,41 @@ module Hellbender
       klass._hb_subscriptions = []
     end
 
+    # called by Bot#plugin()
     def _hb_plug_into(bot)
       @bot = bot
       Array(self.class._hb_subscriptions).each do |sub_type, matcher, callback|
         # turn symbols into Methods of the plugin instance
         callback = self.method(callback) if callback.is_a? Symbol
 
-        case sub_type
-        when :react
-          regexp = matcher
-          my_callback = proc do |m|
-            m.text.match(regexp) do |md|
-              if callback.arity == 1
-                callback.call(m)
-              else
-                # arity could be 2 or < 0
-                callback.call(m, md)
-              end
-            end
+        self.method("_hb_sub_#{sub_type}").call(matcher, callback)
+      end
+    end
+
+    def _hb_sub_subscribe(commands, callback)
+      bot.subscribe(commands, callback)
+    end
+
+    def _hb_sub_react(regexp, callback)
+      bot.subscribe "PRIVMSG" do |m|
+        m.text.match(regexp) do |md|
+          if callback.arity == 1
+            callback.call(m)
+          else
+            # arity could be 2 or < 0
+            callback.call(m, md)
           end
-          matcher = ["PRIVMSG"]
-
-        when :command
-          cmdstr = Regexp.escape(matcher)
-          my_callback = proc do |m|
-            m.text.match(/^[!.]#{cmdstr} *($| +(.+))/i) do |md|
-              # make m.text contain only the command's arguments
-              m.text = md[2] || ""
-              callback.call(m)
-            end
-          end
-          matcher = ["PRIVMSG"]
-
-        when :subscribe
-          my_callback = callback
-
-        else
-          raise
         end
+      end
+    end
 
-        bot.subscribe(matcher, my_callback)
+    def _hb_sub_command(command, callback)
+      bot.subscribe "PRIVMSG" do |m|
+        m.text.match(/^[!.]#{Regexp.escape(command)} *($| +(.+))/i) do |md|
+          # make m.text contain only the command's arguments
+          m.text = md[2] || ""
+          callback.call(m)
+        end
       end
     end
 
