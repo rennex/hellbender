@@ -62,6 +62,7 @@ describe Bot do
     assert_equal "u", msg_m.user.to_s
     assert_equal "hello", msg_m.text
 
+    # check that subscribers get dup'd Messages
     assert_equal all_m, msg_m
     refute_same all_m, msg_m
   end

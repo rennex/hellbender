@@ -8,10 +8,11 @@ describe Plugin do
     @bot = create_test_bot
     @plugin = Class.new do
       include Plugin
-      attr_reader :calls, :cmds
+      attr_reader :calls, :cmds, :captures
       def initialize
         @calls = []
         @cmds = []
+        @captures = []
       end
     end
   end
@@ -48,9 +49,15 @@ describe Plugin do
 
   it "handles react() and command()" do
     @plugin.class_eval do
+      # method that takes exactly 1 argument
       react(/foo/, :reactor)
       def reactor(m)
         @calls << m.text
+      end
+      # method that accepts more arguments
+      react(/foo(.*)/, :reactor2)
+      def reactor2(m, md)
+        @captures << md[1]
       end
 
       command "bar", method: \
@@ -58,6 +65,12 @@ describe Plugin do
         @cmds << m.text
       end
     end
+
+    blockcaptures = []
+    @plugin.react(/q(.+)/) do |m, md|
+      blockcaptures << md[1]
+    end
+
     instance = @plugin.new
     @bot.plugin instance
 
@@ -70,6 +83,8 @@ describe Plugin do
 
     assert_equal ["!bar and foo", "barfood"], instance.calls
     assert_equal ["", "and foo"], instance.cmds
+    assert_equal ["", "d"], instance.captures
+    assert_equal ["uux"], blockcaptures
   end
 
   it "saves bot instance to @bot" do

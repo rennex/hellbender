@@ -43,8 +43,13 @@ module Hellbender
           # handle react()
           regexp = command
           my_callback = proc do |m|
-            if m.text.match(regexp)
-              callback.call(m)
+            m.text.match(regexp) do |md|
+              if callback.arity == 1
+                callback.call(m)
+              else
+                # arity could be 2 or < 0
+                callback.call(m, md)
+              end
             end
           end
           command = ["PRIVMSG"]
@@ -55,7 +60,6 @@ module Hellbender
           my_callback = proc do |m|
             m.text.match(/^[!.]#{cmdstr} *($| +(.+))/i) do |md|
               # make m.text contain only the command's arguments
-              m = m.dup
               m.text = md[2] || ""
               callback.call(m)
             end
