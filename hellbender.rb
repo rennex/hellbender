@@ -15,7 +15,7 @@ class TopicComplainer
     m.channel.msg "#{m.user}: quit changing the topic"
   end
 
-  react /^ping$/i,
+  react /^ping$/i, method: \
   def ping(m)
     m.reply @pongreply
   end

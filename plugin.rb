@@ -7,22 +7,22 @@ module Hellbender
 
     module ClassMethods
       # like Bot#subscribe
-      def subscribe(commands, methodname = nil, **args, &block)
-        _hb_add_sub(:subscribe, Array(commands), methodname, args, block)
+      def subscribe(commands, **args, &block)
+        _hb_add_sub(:subscribe, Array(commands), args, block)
       end
 
       # react to given regexp in PRIVMSGs
-      def react(regexp, methodname = nil, **args, &block)
-        _hb_add_sub(:react, regexp, methodname, args, block)
+      def react(regexp, **args, &block)
+        _hb_add_sub(:react, regexp, args, block)
       end
 
       # named command
-      def command(cmdname, methodname = nil, **args, &block)
-        _hb_add_sub(:command, cmdname, methodname, args, block)
+      def command(cmdname, **args, &block)
+        _hb_add_sub(:command, cmdname, args, block)
       end
 
-      def _hb_add_sub(sub_type, matcher, methodname, args, block)
-        callback = args[:method] || methodname || block
+      def _hb_add_sub(sub_type, matcher, args, block)
+        callback = args[:method] || block
         # store the subscription in a class instance variable
         @_hb_subscriptions << [sub_type, matcher, callback]
       end

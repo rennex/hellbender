@@ -23,7 +23,7 @@ describe Plugin do
       def handler(m)
         @calls << m.command
       end
-      subscribe "QUUX", :handler
+      subscribe "QUUX", method: :handler
     end
 
     calls = []
@@ -50,12 +50,12 @@ describe Plugin do
   it "handles react() and command()" do
     @plugin.class_eval do
       # method that takes exactly 1 argument
-      react(/foo/, :reactor)
+      react(/foo/, method: :reactor)
       def reactor(m)
         @calls << m.text
       end
       # method that accepts more arguments
-      react(/foo(.*)/, :reactor2)
+      react(/foo(.*)/, method: :reactor2)
       def reactor2(m, md)
         @captures << md[1]
       end
