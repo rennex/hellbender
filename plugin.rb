@@ -7,22 +7,24 @@ module Hellbender
 
     module ClassMethods
       # like Bot#subscribe
-      def subscribe(commands, methodname = nil, method: nil, &block)
-        callback = method || methodname || block
-        # store the subscription in a class instance variable
-        @_hb_subscriptions << [:subscribe, Array(commands), callback]
+      def subscribe(commands, methodname = nil, **args, &block)
+        _hb_add_sub(:subscribe, Array(commands), methodname, args, block)
       end
 
       # react to given regexp in PRIVMSGs
-      def react(regexp, methodname = nil, method: nil, &block)
-        callback = method || methodname || block
-        @_hb_subscriptions << [:react, regexp, callback]
+      def react(regexp, methodname = nil, **args, &block)
+        _hb_add_sub(:react, regexp, methodname, args, block)
       end
 
       # named command
-      def command(cmdname, methodname = nil, method: nil, &block)
-        callback = method || methodname || block
-        @_hb_subscriptions << [:command, cmdname, callback]
+      def command(cmdname, methodname = nil, **args, &block)
+        _hb_add_sub(:command, cmdname, methodname, args, block)
+      end
+
+      def _hb_add_sub(sub_type, matcher, methodname, args, block)
+        callback = args[:method] || methodname || block
+        # store the subscription in a class instance variable
+        @_hb_subscriptions << [sub_type, matcher, callback]
       end
     end
 
@@ -50,33 +52,28 @@ module Hellbender
     def _hb_sub_react(regexp, callback)
       bot.subscribe "PRIVMSG" do |m|
         regexp.match(m.text) do |md|
-          if callback.arity == 1
-            callback.call(m)
-          else
-            # arity could be 2 or < 0
-            callback.call(m, md)
-          end
+          _hb_call_with_md(callback, m, md)
         end
       end
     end
 
     def _hb_sub_command(command, callback)
-      cmd_re =  case command
-                when Regexp
-                  command
-                when String
-                  Regexp.escape(command)
-                end
+      cmd_re = command.is_a?(Regexp) ? command : Regexp.escape(command)
       bot.subscribe "PRIVMSG" do |m|
         m.text.match(/^[!.]#{cmd_re}(?:$| +)/i) do |md|
           # make m.text contain only the command's arguments
           m.text = md.post_match
-          if callback.arity == 1
-            callback.call(m)
-          else
-            callback.call(m, md)
-          end
+          _hb_call_with_md(callback, m, md)
         end
+      end
+    end
+
+    def _hb_call_with_md(callback, m, md)
+      if callback.arity == 1
+        callback.call(m)
+      else
+        # arity could be 2 or < 0
+        callback.call(m, md)
       end
     end
 
