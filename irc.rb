@@ -128,10 +128,13 @@ module Hellbender
       @new_listeners << queue
     end
 
-    # send a raw command to the server (only the first line of text)
+    # send a raw command to the server (only the first line of text,
+    # up to 510 characters)
     def sendraw(msg, no_log: false)
       if msg =~ /\A([^\r\n]+)/
-        line = $1
+        # the real limit is 512 bytes including the trailing CRLF.
+        # Let's not deal with message splitting here.
+        line = $1[0,510]
         log.debug ">>\e[0;1m#{line.inspect}" unless no_log
         # thread-safe sending!
         @sock_mutex.synchronize do

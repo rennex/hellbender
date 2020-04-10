@@ -53,6 +53,16 @@ describe Hellbender::IRC do
     assert_mock mock
   end
 
+  it "limits the length of sent messages" do
+    mock = Minitest::Mock.new
+    mock.expect(:write, nil) do |data|
+      assert_equal "A"*510 + "\r\n", data
+    end
+    @irc.instance_variable_set :@sock, mock
+    @irc.sendraw "A"*600
+    assert_mock mock
+  end
+
   it "logs received messages right" do
     logger = Minitest::Mock.new
     @irc.instance_variable_set :@log, logger
