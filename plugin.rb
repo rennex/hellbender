@@ -46,7 +46,7 @@ module Hellbender
     end
 
     def _hb_sub_subscribe(commands, callback)
-      bot.subscribe(commands, callback)
+      bot.subscribe(commands, &callback)
     end
 
     def _hb_sub_react(regexp, callback)

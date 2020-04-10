@@ -79,23 +79,26 @@ module Hellbender
 
       end
 
+      send_to_subscribers(m)
+    end
+
+    def send_to_subscribers(msg)
       # call all the interested subscribers
       threads = []
       sync {
         @subs.each do |wanted, code|
-          if wanted.include?(:all) || wanted.include?(command)
-            threads << Thread.new { code.call(m.dup) }
+          if wanted.include?(:all) || wanted.include?(msg.command)
+            threads << Thread.new { code.call(msg.dup) }
           end
         end
       }
       # return the threads so tests can wait for them to finish
       return threads
-
     end
 
-    def subscribe(commands, callable = nil, &block)
+    def subscribe(commands, &block)
       sync {
-        @subs << [Array(commands), callable || block]
+        @subs << [Array(commands), block]
       }
     end
 

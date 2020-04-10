@@ -67,13 +67,13 @@ describe Bot do
     refute_same all_m, msg_m
   end
 
-  it "supports subscribe with a method instead of a block" do
+  it "supports subscribe with a method turned into a block" do
     @state = []
     def subscriber(m)
       @state << m
     end
 
-    @bot.subscribe("PRIVMSG", method(:subscriber))
+    @bot.subscribe("PRIVMSG", &method(:subscriber))
 
     @bot.process_msg("u", "PRIVMSG", ["#chan", "hello"])
 

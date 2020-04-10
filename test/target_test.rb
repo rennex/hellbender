@@ -68,6 +68,12 @@ describe Target do
     assert_equal Channel.new("#bar"), "#BAR"
   end
 
+  it "supports ===" do
+    u = User.new("foo")
+    assert_operator u, :===, "FOO"
+    refute_operator u, :===, "foox"
+  end
+
   it "can be sorted" do
     u1 = User.new('[\w^e{i-r}d`o|]')
     u2 = User.new("weirdo2")
