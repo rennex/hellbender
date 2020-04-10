@@ -133,4 +133,48 @@ describe Plugin do
     assert_equal ["foo", "bar"], foo_bar_msgs
     assert_equal ["bar", "quux"], other_msgs
   end
+
+  it "supports configurable prefix for commands" do
+    cmds = []
+    @plugin.command("foo", prefix: "*") do |m|
+      cmds << m.text
+    end
+
+    @bot.plugin @plugin
+
+    @bot.process_msg("u", "PRIVMSG", ["#chan", ".foo 1"])
+    @bot.process_msg("u", "PRIVMSG", ["#chan", "foo 2"])
+    @bot.process_msg("u", "PRIVMSG", ["#chan", "*foo 3"])
+    @bot.process_msg("u", "PRIVMSG", ["#chan", "!foo 4"])
+
+    assert_equal ["3"], cmds
+
+    # test with two bot configs: bot section exists and
+    # either does or does not specify prefix
+    configs = {
+      {"bot" => {"foo" => "bar"}}   => ["1", "5"],
+      {"bot" => {"command_prefix" => "x"}}  => ["4"]
+    }
+    configs.each do |config, results|
+      bot = create_test_bot(config)
+      plugin = Class.new do
+        include Plugin
+      end
+      cmds = []
+      plugin.command("foo") do |m|
+        cmds << m.text
+      end
+
+      bot.plugin plugin
+
+      bot.process_msg("u", "PRIVMSG", ["#chan", ".foo 1"])
+      bot.process_msg("u", "PRIVMSG", ["#chan", "foo 2"])
+      bot.process_msg("u", "PRIVMSG", ["#chan", "*foo 3"])
+      bot.process_msg("u", "PRIVMSG", ["#chan", "xfoo 4"])
+      bot.process_msg("u", "PRIVMSG", ["#chan", "!foo 5"])
+
+      assert_equal results, cmds
+    end
+  end
+
 end

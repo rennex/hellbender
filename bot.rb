@@ -13,7 +13,7 @@ module Hellbender
       @config = config
       @irc = IRC.new(config["server"])
       Target.irc = @irc
-      @nick = config["server"]["nick"]
+      @nick = config["server"]&.[]("nick")
       @queue = Queue.new
       @mutex = Mutex.new
       @irc.add_listener(@queue)

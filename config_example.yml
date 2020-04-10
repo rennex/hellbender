@@ -9,3 +9,7 @@ server:
   # bindhost: my-cool-domain.example.org
   ## timeout for establishing connection, default 10 seconds (plus a few)
   # timeout: 10
+
+bot:
+  # prefix for commands -> ".foo" and "!foo" works
+  command_prefix: !ruby/regexp /[.!]/
