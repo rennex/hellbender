@@ -81,6 +81,26 @@ describe Bot do
     assert_equal "hello", @state.first.text
   end
 
+  it "supports a channel matcher for subscribe" do
+    msgs = []
+    @bot.subscribe("PRIVMSG", channel: "#foo") do |m|
+      msgs << m.text
+    end
+
+    @bot.subscribe("PRIVMSG", channel: /z/) do |m|
+      msgs << m.text
+    end
+
+    # let's not bother requiring channel_matcher.rb and testing
+    # with it, since it just has a fancier match?()
+
+    @bot.process_msg("u", "PRIVMSG", ["#chan", "1"])
+    @bot.process_msg("u", "PRIVMSG", ["#FOO", "2"])
+    @bot.process_msg("u", "PRIVMSG", ["#fooz", "3"])
+
+    assert_equal ["2", "3"], msgs
+  end
+
   it "has setters for its own nickname and mode" do
     irc = Minitest::Mock.new
     irc.expect(:sendraw, nil, ["NICK newnick"])

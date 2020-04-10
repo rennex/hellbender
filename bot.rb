@@ -86,9 +86,11 @@ module Hellbender
       # call all the interested subscribers
       threads = []
       sync {
-        @subs.each do |wanted, code|
+        @subs.each do |wanted, channel, code|
           if wanted.include?(:all) || wanted.include?(msg.command)
-            threads << Thread.new { code.call(msg.dup) }
+            if channel.nil? || channel.match?(Util::irccase(msg.channel.to_s))
+              threads << Thread.new { code.call(msg.dup) }
+            end
           end
         end
       }
@@ -96,9 +98,9 @@ module Hellbender
       return threads
     end
 
-    def subscribe(commands, &block)
+    def subscribe(commands, channel: nil, &block)
       sync {
-        @subs << [Array(commands), block]
+        @subs << [Array(commands), channel, block]
       }
     end
 
