@@ -59,6 +59,7 @@ module Hellbender
     end
 
     alias eql? ==
+    alias match? ===  # and by default === is an alias for ==
 
     def hash
       Util.irccase(self.to_s).hash

@@ -1,5 +1,6 @@
 
 require_relative "bot"
+require_relative "channel_matcher"
 
 module Hellbender
   module Plugin
@@ -24,7 +25,7 @@ module Hellbender
       def _hb_add_sub(sub_type, matcher, args, block)
         callback = args[:method] || block
         # store the subscription in a class instance variable
-        @_hb_subscriptions << [sub_type, matcher, callback]
+        @_hb_subscriptions << [sub_type, matcher, args, callback]
       end
     end
 
@@ -37,29 +38,44 @@ module Hellbender
     # called by Bot#plugin()
     def _hb_plug_into(bot)
       @bot = bot
-      Array(self.class._hb_subscriptions).each do |sub_type, matcher, callback|
+
+      Array(self.class._hb_subscriptions).each do |sub_type, matcher, args, callback|
         # turn symbols into Methods of the plugin instance
         callback = self.method(callback) if callback.is_a? Symbol
 
-        self.method(:"_hb_sub_#{sub_type}").call(matcher, callback)
+        channel_matcher = _hb_parse_channel_matcher(args)
+
+        self.method(:"_hb_sub_#{sub_type}").call(matcher, channel_matcher, args, callback)
       end
     end
 
-    def _hb_sub_subscribe(commands, callback)
-      bot.subscribe(commands, &callback)
+    private
+
+    def _hb_parse_channel_matcher(args)
+      inc = args.values_at(:channel, :channels).flatten.uniq.compact
+      exc = args.values_at(:exclude_channel, :exclude_channels).flatten.uniq.compact
+
+      unless inc.empty? && exc.empty?
+        ChannelMatcher.new(include: inc, exclude: exc)
+      end
     end
 
-    def _hb_sub_react(regexp, callback)
-      bot.subscribe "PRIVMSG" do |m|
+
+    def _hb_sub_subscribe(commands, channel, args, callback)
+      bot.subscribe(commands, channel: channel, &callback)
+    end
+
+    def _hb_sub_react(regexp, channel, args, callback)
+      bot.subscribe("PRIVMSG", channel: channel) do |m|
         regexp.match(m.text) do |md|
           _hb_call_with_md(callback, m, md)
         end
       end
     end
 
-    def _hb_sub_command(command, callback)
+    def _hb_sub_command(command, channel, args, callback)
       cmd_re = command.is_a?(Regexp) ? command : Regexp.escape(command)
-      bot.subscribe "PRIVMSG" do |m|
+      bot.subscribe("PRIVMSG", channel: channel) do |m|
         m.text.match(/^[!.]#{cmd_re}(?:$| +)/i) do |md|
           # make m.text contain only the command's arguments
           m.text = md.post_match

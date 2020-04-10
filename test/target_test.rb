@@ -68,10 +68,12 @@ describe Target do
     assert_equal Channel.new("#bar"), "#BAR"
   end
 
-  it "supports ===" do
+  it "supports === and match?" do
     u = User.new("foo")
     assert_operator u, :===, "FOO"
+    assert u.match?("FOO")
     refute_operator u, :===, "foox"
+    refute u.match?("foox")
   end
 
   it "can be sorted" do

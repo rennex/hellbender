@@ -113,4 +113,24 @@ describe Plugin do
     assert_same @bot, instance.bot
   end
 
+  it "handles subscribe with channel filter" do
+    foo_bar_msgs = []
+    @plugin.subscribe("PRIVMSG", channel: "#foo", channels: ["#bar"]) do |m|
+      foo_bar_msgs << m.text
+    end
+
+    other_msgs = []
+    @plugin.subscribe("PRIVMSG", exclude_channels: ["#foo"]) do |m|
+      other_msgs << m.text
+    end
+
+    @bot.plugin @plugin
+
+    @bot.process_msg("u", "PRIVMSG", ["#foo", "foo"])
+    @bot.process_msg("u", "PRIVMSG", ["#bar", "bar"])
+    @bot.process_msg("u", "PRIVMSG", ["#quux", "quux"])
+
+    assert_equal ["foo", "bar"], foo_bar_msgs
+    assert_equal ["bar", "quux"], other_msgs
+  end
 end
