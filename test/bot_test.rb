@@ -112,4 +112,22 @@ describe Bot do
 
     assert_mock irc
   end
+
+  it "has a join method" do
+    irc = Minitest::Mock.new
+    @bot.instance_variable_set :@irc, irc
+
+    irc.expect(:sendraw, nil, ["JOIN #chan"])
+    @bot.join "#chan"
+
+    irc.expect(:sendraw, nil, ["JOIN #chan2"])
+    @bot.join Channel["#chan2"]
+
+    irc.expect(:sendraw, nil, ["JOIN #chan3 password"])
+    @bot.join "#chan3", "password"
+
+    assert_mock irc
+  end
+
+
 end

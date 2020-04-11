@@ -112,6 +112,10 @@ module Hellbender
       User.new(@nick, @irc).mode(*args)
     end
 
+    def join(channel, key = nil)
+      Channel.new(channel.to_s, @irc).join(key)
+    end
+
     def plugin(class_or_instance)
       case class_or_instance
       when Class
