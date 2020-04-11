@@ -101,6 +101,7 @@ module Hellbender
       msg = " :#{message}" if message
       irc.sendraw("PART #{self}#{msg}")
     end
+    alias leave part
 
     def topic=(newtopic)
       irc.sendraw("TOPIC #{self} :#{newtopic}")

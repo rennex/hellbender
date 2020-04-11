@@ -134,6 +134,8 @@ describe Target do
 
     irc.expect_raw "PART #foo"
     c.part
+    irc.expect_raw "PART #foo"
+    c.leave
     irc.expect_raw "PART #foo :bye"
     c.part("bye")
 
