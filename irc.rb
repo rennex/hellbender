@@ -16,8 +16,6 @@ module Hellbender
       @connected = false
       @sock = nil
       @sock_mutex = Mutex.new   # for writing to the socket
-      @listeners = []
-      @new_listeners = Queue.new
       @log = Logger.new(STDOUT)
       @log.formatter = LoggerFormatter.new
     end
@@ -49,7 +47,7 @@ module Hellbender
       return false
     end
 
-    def run
+    def run(&block)
       loop do
         if connect()
           until @sock.eof?
@@ -58,7 +56,7 @@ module Hellbender
             parsed = parse_msg(line)
             if parsed
               log_msg(*parsed, line)
-              process_msg(*parsed)
+              process_msg(*parsed, &block)
             else
               log.error "Malformed message: #{line.inspect}" unless line.strip.empty?
             end
@@ -94,15 +92,7 @@ module Hellbender
         sendraw "PONG #{params.first}", no_log: true
       end
 
-      until @new_listeners.empty?
-        @listeners << @new_listeners.pop
-      end
-      # freeze the data so listeners don't interfere with each other
-      params.each(&:freeze)
-      data = [prefix.freeze, command.freeze, params.freeze].freeze
-      @listeners.each do |queue|
-        queue << data
-      end
+      yield prefix, command, params
     end
 
     # parse messages received from the server
@@ -121,11 +111,6 @@ module Hellbender
         end
         return prefix, command, params
       end
-    end
-
-    # add a listener of server messages
-    def add_listener(queue)
-      @new_listeners << queue
     end
 
     # send a raw command to the server (only the first line of text,

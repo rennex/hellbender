@@ -14,9 +14,7 @@ module Hellbender
       @irc = IRC.new(config["server"])
       Target.irc = @irc
       @nick = config["server"]&.[]("nick")
-      @queue = Queue.new
       @mutex = Mutex.new
-      @irc.add_listener(@queue)
       @channels = Set.new
       @subs = []
     end
@@ -34,13 +32,9 @@ module Hellbender
     end
 
     def run
-      Thread.new {
-        loop do
-          process_msg(*@queue.pop)
-        end
-      }
-
-      @irc.run
+      @irc.run do |*msg|
+        process_msg(*msg)
+      end
     end
 
     def process_msg(prefix, command, params)

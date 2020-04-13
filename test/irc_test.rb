@@ -23,26 +23,20 @@ describe Hellbender::IRC do
   end
 
   it "processes server messages" do
-    q = Queue.new
-    @irc.add_listener(q)
     message = ["ser.ver", "PRIVMSG", ["you", "hello"]]
 
-    @irc.process_msg(*message)
-    assert_equal 1, q.size
-    r = q.pop
-    assert_equal message, r
-    # check that the objects have been frozen
-    assert r.frozen?
-    assert r.all?(&:frozen?)
-    assert r[2].all?(&:frozen?)
+    @irc.process_msg(*message) {|*msg|
+      assert_equal message, msg
+    }
 
     # check ping replies
     ponged = nil
     @irc.stub(:sendraw, proc {|msg| ponged = msg }) {
-      @irc.process_msg(nil, "PING", ["foo"])
+      @irc.process_msg(nil, "PING", ["foo"]) {|*msg|
+        # do nothing
+      }
     }
     assert_equal "PONG foo", ponged
-    assert_equal 1, q.size
   end
 
   it "sends only the first line of raw commands" do
