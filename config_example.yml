@@ -9,6 +9,8 @@ server:
   # bindhost: my-cool-domain.example.org
   ## timeout for establishing connection, default 10 seconds (plus a few)
   # timeout: 10
+  ## Keep reconnecting to IRC if the connection is lost
+  # reconnect: false
 
 bot:
   # prefix for commands -> ".foo" and "!foo" works

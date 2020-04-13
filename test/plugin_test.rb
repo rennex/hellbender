@@ -152,8 +152,8 @@ describe Plugin do
     # test with two bot configs: bot section exists and
     # either does or does not specify prefix
     configs = {
-      {"bot" => {"foo" => "bar"}}   => ["1", "5"],
-      {"bot" => {"command_prefix" => "x"}}  => ["4"]
+      {"bot" => {"foo" => "bar"}} => ["1", "5"],
+      {"bot" => {"command_prefix" => "x"}} => ["4"]
     }
     configs.each do |config, results|
       bot = create_test_bot(config)

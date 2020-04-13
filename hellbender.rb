@@ -64,9 +64,9 @@ begin
     channels.first.msg(text)
   end
   # run a REPL on stdin
-  Hellbender::REPL.launch(bot)
+  Hellbender::REPL.launch(bot) if STDIN.tty?
 
-  bot.run(reconnect: true)
+  bot.run
 
 rescue Interrupt, SystemExit
   STDERR.puts "\nQuitting"

@@ -49,7 +49,7 @@ module Hellbender
       return false
     end
 
-    def run(reconnect: false)
+    def run
       loop do
         if connect()
           until @sock.eof?
@@ -66,8 +66,8 @@ module Hellbender
           log.warn "Lost connection to server"
           @connected = false
         end
-        break unless reconnect
-        sleep 1
+        break unless config["reconnect"]
+        sleep 2
       end
     end
 
