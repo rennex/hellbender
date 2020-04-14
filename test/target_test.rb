@@ -98,7 +98,7 @@ describe Target do
     refute s.include?(Channel.new("foo"))
   end
 
-  it "can be sent a message to" do
+  it "can be sent a message or an action" do
     irc = Minitest::Mock.new
     2.times do
       irc.expect(:sendraw, nil, ["PRIVMSG foo :bar"])
@@ -108,6 +108,9 @@ describe Target do
     t.msg("bar")
     t.privmsg("bar")
     t.notice("quux")
+
+    irc.expect(:sendraw, nil, ["PRIVMSG foo :\x01ACTION foo\x01"])
+    t.action("foo")
     assert_mock irc
   end
 
