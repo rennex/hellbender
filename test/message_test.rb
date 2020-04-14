@@ -141,4 +141,24 @@ describe Message do
     assert_nil m.text
   end
 
+  it "supports checking for public/private message" do
+    priv1 = Message.new("u", "PRIVMSG", ["Hellbender", "Hello"])
+    priv2 = Message.new("u", "NOTICE", ["Hellbender", "Hello"])
+    pub1 = Message.new("u", "PRIVMSG", ["#foo", "hello"])
+    pub2 = Message.new("u", "NOTICE", ["#foo", "hello"])
+
+    assert priv1.private?
+    assert priv2.private?
+    assert pub1.public?
+    assert pub2.public?
+    refute priv1.public?
+    refute priv2.public?
+    refute pub1.private?
+    refute pub2.private?
+
+    m = Message.new("nick!user@server", "QUIT", ["reason"])
+    refute m.private?
+    refute m.public?
+  end
+
 end

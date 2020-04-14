@@ -72,6 +72,14 @@ module Hellbender
       end
     end
 
+    def public?
+      ["PRIVMSG", "NOTICE"].include?(@command) && @target.is_a?(Channel)
+    end
+
+    def private?
+      ["PRIVMSG", "NOTICE"].include?(@command) && !@target.is_a?(Channel)
+    end
+
   end
 end
 
