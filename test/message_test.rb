@@ -66,17 +66,6 @@ describe Message do
     assert_equal '#<Message "b" from "a": ["c", "d"]>', m.inspect
   end
 
-  it "supports checking m.privmsg? etc" do
-    m = Message.new("ser.ver", "PRIVMSG", ["Hellbender", "Hello"])
-    assert m.privmsg?
-    refute m.foobar?
-    assert_raises(NoMethodError) { m.privmsg }
-
-    m = Message.new("ser.ver", "FOOBARBAZ", [])
-    assert m.foobarbaz?
-    refute m.privmsg?
-  end
-
   it "parses target, channel, text etc" do
     chan = Channel.new("#chan")
     user = User.new("nick")
@@ -107,45 +96,38 @@ describe Message do
 
     # kick with a reason
     m = Message.new("nick!user@server", "KICK", ["#chan", "Hellbender", text])
-    assert m.kick?
     assert_equal us, m.target
     assert_equal chan, m.channel
     assert_equal text, m.text
 
     # kick without a message
     m = Message.new("nick!user@server", "KICK", ["#chan", "Hellbender"])
-    assert m.kick?
     assert_equal us, m.target
     assert_equal chan, m.channel
     assert_nil m.text
 
     m = Message.new("nick!user@server", "INVITE", ["Hellbender", "#chan"])
-    assert m.invite?
     assert_equal us, m.target
     assert_equal chan, m.channel
     assert_nil m.text
 
     m = Message.new("nick!user@server", "JOIN", ["#chan"])
-    assert m.join?
     assert_equal chan, m.channel
     assert_equal chan, m.target
     assert_nil m.text
 
     m = Message.new("nick!user@server", "NICK", ["Hellbender"])
-    assert m.nick?
     assert_equal us, m.target
     assert_nil m.channel
     assert_nil m.text
 
     m = Message.new("nick!user@server", "QUIT", [text])
-    assert m.quit?
     assert_nil m.target
     assert_nil m.channel
     assert_equal text, m.message
 
     # channel mode
     m = Message.new("nick!user@server", "MODE", ["#chan", "-m"])
-    assert m.mode?
     assert_equal chan, m.channel
     assert_equal chan, m.target
     assert_equal "-m", m.params.last
@@ -153,7 +135,6 @@ describe Message do
 
     # user mode
     m = Message.new("nick!user@server", "MODE", ["Hellbender", "+Zi"])
-    assert m.mode?
     assert_nil m.channel
     assert_equal us, m.target
     assert_equal "+Zi", m.params.last

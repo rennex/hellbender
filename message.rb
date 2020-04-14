@@ -57,16 +57,6 @@ module Hellbender
       "#<Message \"#{@command}\" from \"#{@sender}\": #{params.inspect}>"
     end
 
-    # support checking e.g. m.privmsg? or m.join?
-    def method_missing(m)
-      meth = m.to_s
-      if meth.end_with?("?")
-        @command == meth.chop.upcase
-      else
-        super
-      end
-    end
-
     # reply to this PRIVMSG, privately or on the same channel.
     # If replying to a channel and 'nick' is true, prepends "Sender: "
     # to the message.
