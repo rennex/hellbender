@@ -5,6 +5,7 @@ require "logger"
 
 require_relative "loggerformatter"
 require_relative "util"
+require_relative "message"
 
 module Hellbender
   class IRC
@@ -53,10 +54,10 @@ module Hellbender
           until @sock.eof?
             line = @sock.gets || break
             guess_encoding(line)
-            parsed = parse_msg(line)
-            if parsed
-              log_msg(*parsed, line)
-              process_msg(*parsed, &block)
+            m = parse_msg(line)
+            if m
+              log_msg(m, line)
+              process_msg(m, &block)
             else
               log.error "Malformed message: #{line.inspect}" unless line.strip.empty?
             end
@@ -69,8 +70,8 @@ module Hellbender
       end
     end
 
-    def log_msg(prefix, command, params, line)
-      case command
+    def log_msg(m, line)
+      case m.command
       when "375", "372", "376", "PING"
         # don't log the MOTD or PINGs
       when /^[45]\d\d$/
@@ -82,24 +83,24 @@ module Hellbender
     end
 
     # handle an incoming server message
-    def process_msg(prefix, command, params)
-      case command
+    def process_msg(m)
+      case m.command
       when "001"
         log.info "Login to server was successful"
         @connected = true
 
       when "PING"
-        sendraw "PONG #{params.first}", no_log: true
+        sendraw "PONG #{m.params.first}", no_log: true
       end
 
-      yield prefix, command, params
+      yield m
     end
 
     # parse messages received from the server
     def parse_msg(line)
       line.match(/\A(:([^ ]+) )?([^ ]+)/) do |md|
-        prefix = md[2]
-        command = md[3].upcase
+        prefix = md[2].freeze
+        command = md[3].upcase.freeze
         rest = md.post_match.chomp
 
         # the last parameter can have spaces by starting with a colon
@@ -109,7 +110,10 @@ module Hellbender
         else
           rest.split
         end
-        return prefix, command, params
+        params.each(&:freeze)
+        params.freeze
+
+        return Message.new(prefix, command, params, self)
       end
     end
 

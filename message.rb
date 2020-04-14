@@ -3,12 +3,12 @@ require_relative "target"
 
 module Hellbender
   class Message
-    attr_accessor :text
+    attr_accessor :text, :bot
     attr_reader :sender, :target, :params, :user, :channel, :irc, :command
     alias message text
 
     def initialize(prefix, command, params, irc = Target.irc)
-      @sender = Target.parse(prefix, irc) if prefix
+      @sender = prefix && Target.parse(prefix, irc)
       @user = @sender if @sender.is_a? User
       @command = command
       @params = params

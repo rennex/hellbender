@@ -51,7 +51,7 @@ begin
   bot = Hellbender::Bot.new(config)
 
   bot.subscribe("INVITE") do |m|
-    if m.channel =~ /^#hellbender-dev$/i
+    if m.channel == "#hellbender-dev"
       m.channel.join
     end
   end
@@ -61,7 +61,7 @@ begin
 
   # define a custom helper
   def bot.say(text)
-    channels.first.msg(text)
+    Hellbender::Channel["#hellbender-dev"].msg(text)
   end
   # run a REPL on stdin
   Hellbender::REPL.launch(bot) if STDIN.tty?

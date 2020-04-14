@@ -35,13 +35,13 @@ describe Plugin do
     @bot.plugin @plugin
     @bot.plugin instance
 
-    @bot.process_msg("u", "CMD", ["foo"])
-    @bot.process_msg("u", "CMD2", ["foo"])
+    @bot.process_msg(m("u", "CMD", ["foo"]))
+    @bot.process_msg(m("u", "CMD2", ["foo"]))
 
-    @bot.process_msg("u", "FOO", ["foo"])
-    @bot.process_msg("u", "QUUX", ["foo"])
-    @bot.process_msg("u", "BAZ", ["foo"])
-    @bot.process_msg("u", "BAR", ["foo"])
+    @bot.process_msg(m("u", "FOO", ["foo"]))
+    @bot.process_msg(m("u", "QUUX", ["foo"]))
+    @bot.process_msg(m("u", "BAZ", ["foo"]))
+    @bot.process_msg(m("u", "BAR", ["foo"]))
 
     assert_equal ["CMD", "CMD"], calls
     assert_equal ["FOO", "QUUX", "BAR"], instance.calls
@@ -86,20 +86,20 @@ describe Plugin do
     instance = @plugin.new
     @bot.plugin instance
 
-    @bot.process_msg("u", "NOTICE", ["#chan", "foobar"])
-    @bot.process_msg("u", "NOTICE", ["#chan", ".bar foo"])
-    @bot.process_msg("u", "PRIVMSG", ["#chan", "barquux"])
-    @bot.process_msg("u", "PRIVMSG", ["#chan", ".bar   "])
-    @bot.process_msg("u", "PRIVMSG", ["#chan", "!bar and foo"])
-    @bot.process_msg("u", "PRIVMSG", ["#chan", "barfood"])
-    @bot.process_msg("u", "PRIVMSG", ["#chan", ".calc 1"])
-    @bot.process_msg("u", "PRIVMSG", ["#chan", "calc x"])
-    @bot.process_msg("u", "PRIVMSG", ["#chan", ".calculate 2"])
-    @bot.process_msg("u", "PRIVMSG", ["#chan", "!post  "])
-    @bot.process_msg("u", "PRIVMSG", ["#chan", ".post  3"])
-    @bot.process_msg("u", "PRIVMSG", ["#chan", ".postulate"])
-    @bot.process_msg("u", "PRIVMSG", ["#chan", "!postulate 4"])
-    @bot.process_msg("u", "PRIVMSG", ["#chan", "postulate"])
+    @bot.process_msg(m("u", "NOTICE", ["#chan", "foobar"]))
+    @bot.process_msg(m("u", "NOTICE", ["#chan", ".bar foo"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", "barquux"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", ".bar   "]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", "!bar and foo"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", "barfood"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", ".calc 1"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", "calc x"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", ".calculate 2"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", "!post  "]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", ".post  3"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", ".postulate"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", "!postulate 4"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", "postulate"]))
 
     assert_equal ["!bar and foo", "barfood"], instance.calls
     assert_equal ["", "and foo", "c1", "culate2", "p", "p3", "pulate", "pulate4"], instance.cmds
@@ -126,9 +126,9 @@ describe Plugin do
 
     @bot.plugin @plugin
 
-    @bot.process_msg("u", "PRIVMSG", ["#foo", "foo"])
-    @bot.process_msg("u", "PRIVMSG", ["#bar", "bar"])
-    @bot.process_msg("u", "PRIVMSG", ["#quux", "quux"])
+    @bot.process_msg(m("u", "PRIVMSG", ["#foo", "foo"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#bar", "bar"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#quux", "quux"]))
 
     assert_equal ["foo", "bar"], foo_bar_msgs
     assert_equal ["bar", "quux"], other_msgs
@@ -142,10 +142,10 @@ describe Plugin do
 
     @bot.plugin @plugin
 
-    @bot.process_msg("u", "PRIVMSG", ["#chan", ".foo 1"])
-    @bot.process_msg("u", "PRIVMSG", ["#chan", "foo 2"])
-    @bot.process_msg("u", "PRIVMSG", ["#chan", "*foo 3"])
-    @bot.process_msg("u", "PRIVMSG", ["#chan", "!foo 4"])
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", ".foo 1"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", "foo 2"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", "*foo 3"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", "!foo 4"]))
 
     assert_equal ["3"], cmds
 
@@ -167,11 +167,11 @@ describe Plugin do
 
       bot.plugin plugin
 
-      bot.process_msg("u", "PRIVMSG", ["#chan", ".foo 1"])
-      bot.process_msg("u", "PRIVMSG", ["#chan", "foo 2"])
-      bot.process_msg("u", "PRIVMSG", ["#chan", "*foo 3"])
-      bot.process_msg("u", "PRIVMSG", ["#chan", "xfoo 4"])
-      bot.process_msg("u", "PRIVMSG", ["#chan", "!foo 5"])
+      bot.process_msg(m("u", "PRIVMSG", ["#chan", ".foo 1"]))
+      bot.process_msg(m("u", "PRIVMSG", ["#chan", "foo 2"]))
+      bot.process_msg(m("u", "PRIVMSG", ["#chan", "*foo 3"]))
+      bot.process_msg(m("u", "PRIVMSG", ["#chan", "xfoo 4"]))
+      bot.process_msg(m("u", "PRIVMSG", ["#chan", "!foo 5"]))
 
       assert_equal results, cmds
     end

@@ -13,3 +13,10 @@ def create_test_bot(config = {"server" => {"nick" => "Hellbender"}})
   end
   return bot
 end
+
+# shorthand for creating a Message
+def m(*args)
+  # don't read @irc unless it's been initialized
+  args << @irc if defined? @irc
+  Message.new(*args)
+end

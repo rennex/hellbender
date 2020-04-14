@@ -32,16 +32,14 @@ module Hellbender
     end
 
     def run
-      @irc.run do |*msg|
-        process_msg(*msg)
+      @irc.run do |msg|
+        process_msg(msg)
       end
     end
 
-    def process_msg(prefix, command, params)
-      m = Message.new(prefix, command, params, @irc)
-
+    def process_msg(m)
       # track our own activity
-      case command
+      case m.command
       when "NICK"
         if m.user == @nick
           @nick = m.target
@@ -73,17 +71,18 @@ module Hellbender
 
       end
 
-      send_to_subscribers(m)
+      m.bot = self
+      call_subscribers(m)
     end
 
-    def send_to_subscribers(msg)
+    def call_subscribers(m)
       # call all the interested subscribers
       threads = []
       sync {
         @subs.each do |wanted, channel, code|
-          if wanted.include?(:all) || wanted.include?(msg.command)
-            if channel.nil? || channel.match?(Util::irccase(msg.channel.to_s))
-              threads << Thread.new { code.call(msg.dup) }
+          if wanted.include?(:all) || wanted.include?(m.command)
+            if channel.nil? || channel.match?(Util::irccase(m.channel.to_s))
+              threads << Thread.new { code.call(m.dup) }
             end
           end
         end

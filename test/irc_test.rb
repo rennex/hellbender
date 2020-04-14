@@ -14,25 +14,33 @@ describe Hellbender::IRC do
   end
 
   it "parses server messages" do
-    assert_equal ["Nick!user@ser.ver", "PRIVMSG", ["#channel", "hello, world!"]],
+    assert_equal m("Nick!user@ser.ver", "PRIVMSG", ["#channel", "hello, world!"]),
                   @irc.parse_msg(":Nick!user@ser.ver PRIVMSG #channel :hello, world!\r\n")
-    assert_equal [nil, "PRIVMSG", ["bar", "hello"]], @irc.parse_msg("PRIVMSG bar :hello")
-    assert_equal [nil, "CMD", ["x", ""]], @irc.parse_msg("CMD x :")
-    assert_equal ["ser.ver", "CMD", ["x", ""]], @irc.parse_msg(":ser.ver cmd x :")
-    assert_equal [nil, "PING", ["123 45"]], @irc.parse_msg("PING :123 45")
+    assert_equal m(nil, "PRIVMSG", ["bar", "hello"]), @irc.parse_msg("PRIVMSG bar :hello")
+    assert_equal m(nil, "CMD", ["x", ""]), @irc.parse_msg("CMD x :")
+    assert_equal m("ser.ver", "CMD", ["x", ""]), @irc.parse_msg(":ser.ver cmd x :")
+    assert_equal m(nil, "PING", ["123 45"]), @irc.parse_msg("PING :123 45")
+  end
+
+  it "freezes the data put into a Message" do
+    msg = @irc.parse_msg(":u PRIVMSG #chan :hi\r\n")
+    assert msg.sender.name.frozen?
+    assert msg.command.frozen?
+    assert msg.params.frozen?
+    assert msg.params.all?(&:frozen?)
   end
 
   it "processes server messages" do
-    message = ["ser.ver", "PRIVMSG", ["you", "hello"]]
+    message = m("ser.ver", "PRIVMSG", ["you", "hello"])
 
-    @irc.process_msg(*message) {|*msg|
+    @irc.process_msg(message) {|msg|
       assert_equal message, msg
     }
 
     # check ping replies
     ponged = nil
     @irc.stub(:sendraw, proc {|msg| ponged = msg }) {
-      @irc.process_msg(nil, "PING", ["foo"]) {|*msg|
+      @irc.process_msg(m(nil, "PING", ["foo"])) {|msg|
         # do nothing
       }
     }
@@ -63,21 +71,21 @@ describe Hellbender::IRC do
 
     # no logs for these
     ["375", "372", "376", "PING"].each do |cmd|
-      @irc.log_msg(nil, cmd, ["x"], "line")
+      @irc.log_msg(m(nil, cmd, ["x"]), "line")
       assert_mock logger
     end
 
     # error logs
     ["400", "500", "599"].each do |cmd|
       logger.expect(:error, nil, [String])
-      @irc.log_msg(nil, cmd, ["x"], "line")
+      @irc.log_msg(m(nil, cmd, ["x"]), "line")
       assert_mock logger
     end
 
     # debug logs
     ["399", "600", "123", "FOOBAR"].each do |cmd|
       logger.expect(:debug, nil, [String])
-      @irc.log_msg(nil, cmd, ["x"], "line")
+      @irc.log_msg(m(nil, cmd, ["x"]), "line")
       assert_mock logger
     end
   end

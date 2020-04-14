@@ -14,20 +14,20 @@ describe Bot do
 
   it "tracks its own nickname" do
     assert_equal "Hellbender", @bot.nick
-    @bot.process_msg("Hellbender", "NICK", ["bot"])
+    @bot.process_msg(m("Hellbender", "NICK", ["bot"]))
     assert_equal "bot", @bot.nick.to_s
   end
 
   it "tracks its own channels" do
     assert_equal [], @bot.channels
-    @bot.process_msg("Hellbender", "JOIN", ["#chan"])
-    @bot.process_msg("Hellbender", "JOIN", ["#foo"])
+    @bot.process_msg(m("Hellbender", "JOIN", ["#chan"]))
+    @bot.process_msg(m("Hellbender", "JOIN", ["#foo"]))
     assert_equal [Channel["#chan"], Channel["#foo"]], @bot.channels.sort
 
-    @bot.process_msg("some!one@x", "KICK", ["#foo", "Hellbender", "go away"])
+    @bot.process_msg(m("some!one@x", "KICK", ["#foo", "Hellbender", "go away"]))
     assert_equal [Channel["#chan"]], @bot.channels
 
-    @bot.process_msg("Hellbender", "PART", ["#chan", "bye"])
+    @bot.process_msg(m("Hellbender", "PART", ["#chan", "bye"]))
     assert_equal [], @bot.channels
   end
 
@@ -51,10 +51,10 @@ describe Bot do
       msg_m = m
     }
 
-    @bot.process_msg("u", "FOOBAR", [])
-    @bot.process_msg("u", "JOIN", ["#chan"])
-    @bot.process_msg("u", "PRIVMSG", ["#chan", "hello"])
-    @bot.process_msg("u", "PART", ["#chan"])
+    @bot.process_msg(m("u", "FOOBAR", []))
+    @bot.process_msg(m("u", "JOIN", ["#chan"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", "hello"]))
+    @bot.process_msg(m("u", "PART", ["#chan"]))
 
     assert_equal 4, all_count
     assert_equal 2, join_part_count
@@ -75,7 +75,7 @@ describe Bot do
 
     @bot.subscribe("PRIVMSG", &method(:subscriber))
 
-    @bot.process_msg("u", "PRIVMSG", ["#chan", "hello"])
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", "hello"]))
 
     assert_equal 1, @state.size
     assert_equal "hello", @state.first.text
@@ -94,9 +94,9 @@ describe Bot do
     # let's not bother requiring channel_matcher.rb and testing
     # with it, since it just has a fancier match?()
 
-    @bot.process_msg("u", "PRIVMSG", ["#chan", "1"])
-    @bot.process_msg("u", "PRIVMSG", ["#FOO", "2"])
-    @bot.process_msg("u", "PRIVMSG", ["#fooz", "3"])
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", "1"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#FOO", "2"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#fooz", "3"]))
 
     assert_equal ["2", "3"], msgs
   end
