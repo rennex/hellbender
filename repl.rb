@@ -12,6 +12,9 @@ module Hellbender
 
     def initialize(bot)
       @bot = bot
+      # we use this binding so that local variables can be set in the repl
+      # (note that this has to be a string; a block behaves differently)
+      @binding = bot.instance_eval "binding"
     end
 
     def run
@@ -30,7 +33,7 @@ module Hellbender
       end
 
       begin
-        result = @bot.instance_eval(line)
+        result = @binding.eval(line)
       rescue SystemExit
         raise
       rescue Exception => e
