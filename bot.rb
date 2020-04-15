@@ -1,6 +1,5 @@
 
 require_relative "irc"
-require_relative "message"
 
 require "set"
 
@@ -13,7 +12,7 @@ module Hellbender
       @config = config
       @irc = IRC.new(config["server"])
       Target.irc = @irc
-      @nick = config["server"]&.[]("nick")
+      @nick = config.dig("server", "nick")
       @mutex = Mutex.new
       @channels = Set.new
       @subs = []
@@ -60,13 +59,13 @@ module Hellbender
 
       when "KICK"
         if m.target == @nick
-          log.warn "We were kicked from #{m.channel} by #{m.user}:\e[0m #{m.message}"
+          log.warn "We were kicked from #{m.channel} by #{m.user}:\e[0m #{m.text}"
           sync { @channels.delete(m.channel) }
         end
 
       when "PRIVMSG"
         if m.target == @nick
-          log.info "<#{m.user}>\e[0m #{m.message}"
+          log.info "<#{m.user}>\e[0m #{m.text}"
         end
 
       end
