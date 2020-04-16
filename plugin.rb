@@ -76,7 +76,7 @@ module Hellbender
     def _hb_sub_command(command, channel, args, callback)
       cmd_re = command.is_a?(Regexp) ? command : Regexp.escape(command)
 
-      prefix = args[:prefix] || bot.config["bot"]&.[]("command_prefix") || /[.!]/
+      prefix = args[:prefix] || bot.config.dig("bot", "command_prefix") || /[.!]/
       prefix_re = prefix.is_a?(Regexp) ? prefix : Regexp.escape(prefix)
 
       bot.subscribe("PRIVMSG", channel: channel) do |m|
