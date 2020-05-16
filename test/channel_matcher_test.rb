@@ -53,3 +53,38 @@ describe ChannelMatcher do
   end
 
 end
+
+
+describe CombinedMatcher do
+  it "combines matchers correctly" do
+    m1 = ChannelMatcher.new(include: /a/, exclude: "#foobar")
+    m2 = ChannelMatcher.new(include: /b/, exclude: "#bar")
+    cm = CombinedMatcher.new(m1, m2)
+
+    assert cm.match? "#crab"
+    assert cm.match? "#barb"
+    assert cm.match? "#foobar5"
+
+    refute cm.match? "#foober"
+    refute cm.match? "#foocar"
+
+    refute cm.match? "#foobar"
+    refute cm.match? "#FOObar"
+    refute cm.match? "#bar"
+    refute cm.match? "#BAR"
+  end
+
+  it "returns the original if there's only one non-nil input" do
+    m1 = ChannelMatcher.new(include: /a/)
+    cm = CombinedMatcher.new(nil, m1, nil)
+    assert_same cm, m1
+
+    cm = CombinedMatcher.new(m1)
+    assert_same cm, m1
+  end
+
+  it "returns nil if there's no non-nil inputs" do
+    assert_nil CombinedMatcher.new(nil)
+    assert_nil CombinedMatcher.new(nil, nil, nil)
+  end
+end

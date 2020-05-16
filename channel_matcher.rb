@@ -36,8 +36,30 @@ module Hellbender
 
       return false
     end
-
     alias === match?
 
+  end
+
+  class CombinedMatcher
+    def self.new(*matchers)
+      ms = matchers.compact
+      if ms.size < 2
+        ms.first
+      else
+        super(ms)
+      end
+    end
+
+    def initialize(matchers)
+      @matchers = matchers
+    end
+
+    def match?(channel)
+      @matchers.each do |m|
+        return false unless m.match?(channel)
+      end
+      return true
+    end
+    alias === match?
   end
 end
