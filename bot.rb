@@ -108,7 +108,7 @@ module Hellbender
       Channel.new(channel.to_s, @irc).join(key)
     end
 
-    def plugin(class_or_instance)
+    def plugin(class_or_instance, **args)
       case class_or_instance
       when Class
         instance = class_or_instance.new
@@ -120,7 +120,7 @@ module Hellbender
         raise TypeError, "plugin must be a Hellbender::Plugin"
       end
 
-      instance._hb_plug_into(self)
+      instance._hb_plug_into(self, args)
     end
 
   end

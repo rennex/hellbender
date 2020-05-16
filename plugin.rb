@@ -36,16 +36,18 @@ module Hellbender
     end
 
     # called by Bot#plugin()
-    def _hb_plug_into(bot)
+    def _hb_plug_into(bot, plugin_args)
       @bot = bot
+      plugin_cm = _hb_parse_channel_matcher(plugin_args)
 
       Array(self.class._hb_subscriptions).each do |sub_type, matcher, args, callback|
         # turn symbols into Methods of the plugin instance
         callback = self.method(callback) if callback.is_a? Symbol
 
-        channel_matcher = _hb_parse_channel_matcher(args)
+        cm = _hb_parse_channel_matcher(args)
+        channel_matcher = CombinedMatcher.new(plugin_cm, cm)
 
-        self.method(:"_hb_sub_#{sub_type}").call(matcher, channel_matcher, args, callback)
+        self.method(:"_hb_sub_#{sub_type}").call(matcher, channel_matcher, callback, args, plugin_args)
       end
     end
 
@@ -61,11 +63,11 @@ module Hellbender
     end
 
 
-    def _hb_sub_subscribe(commands, channel, args, callback)
+    def _hb_sub_subscribe(commands, channel, callback, *args)
       bot.subscribe(commands, channel: channel, &callback)
     end
 
-    def _hb_sub_react(regexp, channel, args, callback)
+    def _hb_sub_react(regexp, channel, callback, *args)
       bot.subscribe("PRIVMSG", channel: channel) do |m|
         regexp.match(m.text) do |md|
           _hb_call_with_md(callback, m, md)
@@ -73,10 +75,10 @@ module Hellbender
       end
     end
 
-    def _hb_sub_command(command, channel, args, callback)
+    def _hb_sub_command(command, channel, callback, args, plugin_args)
       cmd_re = command.is_a?(Regexp) ? command : Regexp.escape(command)
 
-      prefix = args[:prefix] || bot.config.dig("bot", "command_prefix") || /[.!]/
+      prefix = plugin_args[:prefix] || args[:prefix] || bot.config.dig("bot", "command_prefix") || /[.!]/
       prefix_re = prefix.is_a?(Regexp) ? prefix : Regexp.escape(prefix)
 
       bot.subscribe("PRIVMSG", channel: channel) do |m|

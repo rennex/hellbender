@@ -177,4 +177,42 @@ describe Plugin do
     end
   end
 
+  it "supports plugin-level channel filters" do
+    foo_msgs = []
+    @plugin.subscribe("PRIVMSG", channel: /foo/) do |m|
+      foo_msgs << m.text
+    end
+
+    other_msgs = []
+    @plugin.subscribe("PRIVMSG", exclude_channels: [/foo/, /\d/]) do |m|
+      other_msgs << m.text
+    end
+
+    @bot.plugin @plugin, channels: ["#foobar", "#quux", "#quux2"]
+
+    @bot.process_msg(m("u", "PRIVMSG", ["#foo", "foo"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#foobar", "foobar"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#quux", "quux"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#quux2", "quux2"]))
+
+    assert_equal ["foobar"], foo_msgs
+    assert_equal ["quux"], other_msgs
+  end
+
+  it "supports plugin-level prefix for commands" do
+    cmds = []
+    @plugin.command("foo") do |m|
+      cmds << m.text
+    end
+
+    @bot.plugin @plugin, prefix: "x"
+
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", ".foo 1"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", "foo 2"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", "xfoo 3"]))
+    @bot.process_msg(m("u", "PRIVMSG", ["#chan", "!foo 4"]))
+
+    assert_equal ["3"], cmds
+  end
+
 end
