@@ -28,6 +28,7 @@ module Hellbender
       return if line.nil?
       line.strip!
       if line.empty?
+        # take empty lines out of the history
         Readline::HISTORY.pop
         return
       end

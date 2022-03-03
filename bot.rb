@@ -11,6 +11,7 @@ module Hellbender
     def initialize(config)
       @config = config
       @irc = IRC.new(config["server"])
+      # set up global state: the default IRC connection for new Targets
       Target.irc = @irc
       @nick = config.dig("server", "nick")
       @mutex = Mutex.new
