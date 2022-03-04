@@ -15,15 +15,15 @@ describe Hellbender::IRC do
 
   it "parses server messages" do
     assert_equal m("Nick!user@ser.ver", "PRIVMSG", ["#channel", "hello, world!"]),
-                  @irc.parse_msg(":Nick!user@ser.ver PRIVMSG #channel :hello, world!\r\n")
-    assert_equal m(nil, "PRIVMSG", ["bar", "hello"]), @irc.parse_msg("PRIVMSG bar :hello")
-    assert_equal m(nil, "CMD", ["x", ""]), @irc.parse_msg("CMD x :")
-    assert_equal m("ser.ver", "CMD", ["x", ""]), @irc.parse_msg(":ser.ver cmd x :")
-    assert_equal m(nil, "PING", ["123 45"]), @irc.parse_msg("PING :123 45")
+                  IRC.parse_msg(":Nick!user@ser.ver PRIVMSG #channel :hello, world!\r\n", @irc)
+    assert_equal m(nil, "PRIVMSG", ["bar", "hello"]), IRC.parse_msg("PRIVMSG bar :hello", @irc)
+    assert_equal m(nil, "CMD", ["x", ""]), IRC.parse_msg("CMD x :", @irc)
+    assert_equal m("ser.ver", "CMD", ["x", ""]), IRC.parse_msg(":ser.ver cmd x :", @irc)
+    assert_equal m(nil, "PING", ["123 45"]), IRC.parse_msg("PING :123 45", @irc)
   end
 
   it "freezes the data put into a Message" do
-    msg = @irc.parse_msg(":u PRIVMSG #chan :hi\r\n")
+    msg = IRC.parse_msg(":u PRIVMSG #chan :hi\r\n", @irc)
     assert msg.sender.name.frozen?
     assert msg.command.frozen?
     assert msg.params.frozen?

@@ -54,7 +54,7 @@ module Hellbender
           until @sock.eof?
             line = @sock.gets || break
             guess_encoding(line)
-            m = parse_msg(line)
+            m = IRC.parse_msg(line, self)
             if m
               log_msg(m, line)
               process_msg(m, &block)
@@ -97,7 +97,7 @@ module Hellbender
     end
 
     # parse messages received from the server
-    def parse_msg(line)
+    def IRC.parse_msg(line, irc)
       line.match(/\A(:([^ ]+) )?([^ ]+)/) do |md|
         prefix = md[2].freeze
         command = md[3].upcase.freeze
@@ -113,7 +113,7 @@ module Hellbender
         params.each(&:freeze)
         params.freeze
 
-        return Message.new(prefix, command, params, self)
+        return Message.new(prefix, command, params, irc)
       end
     end
 
