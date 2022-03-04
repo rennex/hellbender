@@ -6,6 +6,7 @@ require "set"
 module Hellbender
   class Bot
     include UtilMethods
+    include Sync
 
     attr_reader :irc, :nick, :config
     def initialize(config)
@@ -17,10 +18,6 @@ module Hellbender
       @mutex = Mutex.new
       @channels = Set.new
       @subs = []
-    end
-
-    def sync
-      @mutex.synchronize { yield }
     end
 
     def channels

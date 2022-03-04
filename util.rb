@@ -38,4 +38,10 @@ module Hellbender
   class Util
     extend UtilMethods
   end
+
+  module Sync
+    def sync
+      @mutex.synchronize { yield }
+    end
+  end
 end
