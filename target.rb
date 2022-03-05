@@ -93,6 +93,11 @@ module Hellbender
     def to_s
       @nick
     end
+
+    def to_raw
+      return to_s unless @user
+      "#{@nick}!#{@user}@#{@host}"
+    end
   end
 
 

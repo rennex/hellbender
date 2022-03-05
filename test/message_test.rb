@@ -161,4 +161,13 @@ describe Message do
     refute m.public?
   end
 
+  it "can be turned into a raw IRC string" do
+    assert_equal "ASDF", Message.new(nil, "ASDF", []).to_raw
+    assert_equal "FOO :bar", Message.new(nil, "FOO", ["bar"]).to_raw
+    assert_equal ":pref FOO :bar", Message.new("pref", "FOO", ["bar"]).to_raw
+    assert_equal ":pref FOO bar quux :bleep bloop",
+      Message.new("pref", "FOO", ["bar", "quux", "bleep bloop"]).to_raw
+    assert_equal ":nick!user@host FOO :bar", Message.new("nick!user@host", "FOO", ["bar"]).to_raw
+  end
+
 end

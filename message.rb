@@ -57,6 +57,28 @@ module Hellbender
       "#<Message \"#{@command}\" from \"#{@sender}\": #{params.inspect}>"
     end
 
+    def to_raw
+      res = []
+
+      prefix = if @sender.respond_to?(:to_raw) then @sender.to_raw else @sender.to_s end
+      unless prefix.empty?
+        res << ":#{prefix}"
+      end
+
+      res << @command
+
+      # treat the last parameter differently (add a leading colon to it)
+      if @params.size > 1
+        res.concat(params[0...-1])
+      end
+
+      unless @params.empty?
+        res << ":#{@params.last}"
+      end
+
+      return res.join(" ")
+    end
+
     # reply to this PRIVMSG, privately or on the same channel.
     # If replying to a channel and 'nick' is true, prepends "Sender: "
     # to the message.
