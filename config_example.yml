@@ -3,6 +3,9 @@ server:
   port: 6697
   tls: true
 
+  ## alternatively, for a unix socket connection:
+  # path: /tmp/minibouncer-sock
+
   username: hellbender
   #pass: mypassword
   nick: hellbender-bot

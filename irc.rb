@@ -22,9 +22,16 @@ module Hellbender
     end
 
     def connect
-      log.info "Connecting to server #{config["host"]}:#{config["port"]}"
-      @sock = Socket.tcp(config["host"], config["port"], config["bindhost"],
-              connect_timeout: (config["timeout"] || 10))
+      path = config["path"]
+      if path
+        log.info "Connecting to unix socket #{path}"
+        @sock = Socket.unix(path)
+
+      else
+        log.info "Connecting to server (TCP) #{config["host"]}:#{config["port"]}"
+        @sock = Socket.tcp(config["host"], config["port"], config["bindhost"],
+                connect_timeout: (config["timeout"] || 10))
+      end
 
       if config["tls"]
         log.info "Connected, establishing TLS encryption"
@@ -52,7 +59,7 @@ module Hellbender
 
       sendraw "NICK #{config['nick']}"
       sendraw "USER #{config['username']} #{config['bindhost'] || 'localhost'} " +
-              "#{config['host']} :#{config['realname']}"
+              "#{config['host'] || '*'} :#{config['realname']}"
 
     rescue Errno::ECONNREFUSED, Errno::EALREADY
       # Socket.tcp with a connect timeout seems to raise EALREADY
