@@ -25,6 +25,23 @@ module Hellbender
       log.info "Connecting to server #{config["host"]}:#{config["port"]}"
       @sock = Socket.tcp(config["host"], config["port"], config["bindhost"],
               connect_timeout: (config["timeout"] || 10))
+
+      if config["tls"]
+        log.info "Connected, establishing TLS encryption"
+        require "openssl"
+
+        ctx = OpenSSL::SSL::SSLContext.new
+
+        unless config["tls_verify_peer"] == false
+          ctx.set_params(verify_mode: OpenSSL::SSL::VERIFY_PEER)
+        end
+
+        sslsock = OpenSSL::SSL::SSLSocket.new(@sock, ctx)
+        sslsock.sync_close = true
+        sslsock.connect
+        @sock = sslsock
+      end
+
       log.info "Connection established"
 
       pass = config["pass"]

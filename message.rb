@@ -60,6 +60,7 @@ module Hellbender
     def to_raw
       res = []
 
+      # normally @sender is a Target, and we want "nick!user@host" here instead of "nick"
       prefix = if @sender.respond_to?(:to_raw) then @sender.to_raw else @sender.to_s end
       unless prefix.empty?
         res << ":#{prefix}"
