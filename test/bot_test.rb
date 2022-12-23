@@ -123,7 +123,7 @@ describe Bot do
     irc.expect(:sendraw, nil, ["JOIN #chan2"])
     @bot.join Channel["#chan2"]
 
-    irc.expect(:sendraw, nil, ["JOIN #chan3 password"])
+    irc.expect(:sendraw, nil, ["JOIN #chan3 :password"])
     @bot.join "#chan3", "password"
 
     assert_mock irc

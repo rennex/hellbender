@@ -132,7 +132,7 @@ describe Target do
 
     irc.expect_raw "JOIN #foo"
     c.join
-    irc.expect_raw "JOIN #foo bar"
+    irc.expect_raw "JOIN #foo :bar"
     c.join("bar")
 
     irc.expect_raw "PART #foo"

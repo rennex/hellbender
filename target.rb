@@ -103,7 +103,8 @@ module Hellbender
 
   class Channel < Target
     def join(key = nil)
-      irc.sendraw("JOIN #{self} #{key}".strip)
+      keyarg = " :#{key}" if key
+      irc.sendraw("JOIN #{self}#{keyarg}")
     end
 
     def part(message = nil)
