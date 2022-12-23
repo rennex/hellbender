@@ -50,13 +50,13 @@ module Hellbender
     end
 
     def <=>(other)
-      Util.irccase(self.to_s) <=> Util.irccase(other.to_s)
+      Util.irccase(self) <=> Util.irccase(other)
     end
 
     def ==(other)
       case other
       when self.class, String
-        Util.irccmp(self.to_s, other.to_s)
+        Util.irccmp(self, other)
       else
         false
       end
@@ -66,7 +66,7 @@ module Hellbender
     alias match? ===  # and by default === is an alias for ==
 
     def hash
-      Util.irccase(self.to_s).hash
+      Util.irccase(self).hash
     end
   end
 
