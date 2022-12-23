@@ -40,6 +40,24 @@ describe Target do
     assert_kind_of Channel, Target.parse("!weirdestchannel")
   end
 
+  it "accepts Target objects in place of strings" do
+    c = Target.parse("#chan")
+    u = Target.parse("nick!user@host")
+    u2 = Target.parse("user")
+
+    assert_same c, Target.parse(c)
+    assert_same u, Target.parse(u)
+    assert_same u2, Target.parse(u2)
+    assert_equal c, Channel.new(c)
+    assert_equal u, User.new(u)
+    assert_equal u2, User.new(u2)
+    refute_equal u, User.new(u2)
+
+    assert_raises(ArgumentError) { User.new(c) }
+    assert_raises(ArgumentError) { Channel.new(u) }
+    assert_raises(ArgumentError) { Channel.new(u2) }
+  end
+
   it "can parse server names" do
     t = Target.parse("irc.server")
     assert_equal Target, t.class

@@ -16,10 +16,18 @@ module Hellbender
     def self.[](*args); new(*args); end
 
     def self.parse(target, irc = Target.irc)
-      if target =~ /^[&#+!]/
-        Channel.new(target, irc)
-      else
-        User.new(target, irc) rescue Target.new(target, irc)
+      case target
+      when String
+        if target =~ /^[&#+!]/
+          Channel.new(target, irc)
+        else
+          User.new(target, irc) rescue Target.new(target, irc)
+        end
+
+      when Target
+        # pass it through, so you can use Target.parse(arg)
+        # when arg is either text or already a Target object
+        return target
       end
     end
 
@@ -75,18 +83,31 @@ module Hellbender
     attr_reader :nick, :user, :host
     alias name nick
 
-    def initialize(prefix, irc = Target.irc)
-      @irc = irc
-      # parse Nick!user@host
-      if prefix =~ /^([^!@]+)!([^@]+)@([^!@]+)$/
-        @nick = $1
-        @user = $2
-        @host = $3
-      elsif Util.valid_nick?(prefix)
-        @nick = prefix
-        @user = @host = nil
+    def initialize(prefix, irc = (default_irc = Target.irc))
+      case prefix
+      when String
+        # parse Nick!user@host
+        if prefix =~ /^([^!@]+)!([^@]+)@([^!@]+)$/
+          @nick = $1
+          @user = $2
+          @host = $3
+        elsif Util.valid_nick?(prefix)
+          @nick = prefix
+          @user = @host = nil
+        else
+          raise "invalid prefix for parsing User: #{prefix}"
+        end
+        @irc = irc
+
+      when User
+        # copy the values if the argument was a User object
+        @nick = prefix.nick
+        @user = prefix.user
+        @host = prefix.host
+        @irc = default_irc ? prefix.irc : irc
+
       else
-        raise "invalid prefix for parsing User: #{prefix}"
+        raise ArgumentError, "parameter class #{prefix.class} is not supported"
       end
     end
 
@@ -102,6 +123,22 @@ module Hellbender
 
 
   class Channel < Target
+    def initialize(name, irc = (default_irc = Target.irc))
+      case name
+      when String
+        @name = name
+        @irc = irc
+
+      when Channel
+        chan = name
+        @name = chan.name
+        @irc = default_irc ? chan.irc : irc
+
+      else
+        raise ArgumentError, "parameter class #{name.class} is not supported"
+      end
+    end
+
     def join(key = nil)
       keyarg = " :#{key}" if key
       irc.sendraw("JOIN #{self}#{keyarg}")
