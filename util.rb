@@ -24,7 +24,7 @@ module Hellbender
 
     # check that a nickname contains only allowed characters
     def valid_nick?(nick)
-      nick.to_s.match(/^(?![-0-9])[-a-z0-9\[\]\|`^{}\\_]+$/i)
+      nick.to_s.match(/\A(?![-0-9])[-a-z0-9\[\]\|`^{}\\_]+\z/i)
     end
 
     # raise an exception if the nickname isn't valid
