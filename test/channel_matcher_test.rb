@@ -65,13 +65,27 @@ describe CombinedMatcher do
     assert cm.match? "#barb"
     assert cm.match? "#foobar5"
 
+    # the combined matcher requires that both /a/ and /b/ match
     refute cm.match? "#foober"
     refute cm.match? "#foocar"
 
+    # excluded channels (identical and case-insensitive)
     refute cm.match? "#foobar"
     refute cm.match? "#FOObar"
     refute cm.match? "#bar"
     refute cm.match? "#BAR"
+
+    # more tests
+    m3 = ChannelMatcher.new(include: /a/)
+    m4 = ChannelMatcher.new(exclude: /b/)
+    cm2 = CombinedMatcher.new(m3, m4)
+
+    assert cm2.match? "#cars"
+    refute cm2.match? "#cabs"
+    refute cm2.match? "#bars"
+    refute cm2.match? "#beers"
+    refute cm2.match? "#deers"
+    assert cm2.match? "#dears"
   end
 
   it "returns the original if there's only one non-nil input" do
